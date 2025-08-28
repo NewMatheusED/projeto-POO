@@ -33,20 +33,4 @@ public class ExternalApiService {
             return ApiResponse.error("Erro ao consultar API externa: " + e.getMessage(), 500);
         }
     }
-
-    /**
-     * Envia dados para uma API externa
-     * @param url URL da API
-     * @param request Dados da requisição
-     * @param responseType Tipo da resposta esperada
-     * @return Resposta encapsulada
-     */
-    public <T> ApiResponse<T> enviarParaApiExterna(String url, Object request, Class<T> responseType) {
-        try {
-            T data = httpClient.post(url, request, responseType);
-            return ApiResponse.success(data);
-        } catch (Exception e) {
-            return ApiResponse.error("Erro ao enviar dados para API externa: " + e.getMessage(), 500);
-        }
-    }
 }

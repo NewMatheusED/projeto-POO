@@ -1,27 +1,40 @@
-# Projeto Spring Boot - Consumo de APIs Externas
+# Projeto Spring Boot - API do Senado Federal
 
-Este projeto demonstra como estruturar uma aplicação Spring Boot seguindo os princípios SOLID e object calisthenics para consumir APIs externas de forma organizada e extensível.
+Este projeto demonstra como estruturar uma aplicação Spring Boot seguindo os princípios SOLID e object calisthenics para consumir a API do Senado Federal de forma organizada e extensível.
+
+## 🏛️ Sobre a API do Senado
+
+**URL Base**: `https://legis.senado.leg.br`
+
+A API do Senado Federal fornece acesso a dados legislativos abertos, incluindo:
+- Proposições legislativas (PL, PEC, MPV, etc.)
+- Informações sobre senadores
+- Sessões legislativas
+- Comissões parlamentares
+- Tramitações e votações
+- Documentos parlamentares
 
 ## 🏗️ Arquitetura
 
 O projeto segue uma arquitetura em camadas bem definidas:
 
 ### Domain Layer
-- **Entidades**: Representam os objetos de negócio
-- **DTOs**: Objetos de transferência de dados
+- **Entidades**: `ApiResponse<T>` - Respostas padronizadas
+- **DTOs**: `ProposicaoDto`, `SenadorDto`, `SessaoDto`
 - **Regras de negócio**: Lógica central da aplicação
 
 ### Infrastructure Layer
 - **Cliente HTTP**: Interface e implementação para consumir APIs externas
 - **Configurações**: Beans e configurações do Spring
+- **Tratamento de Exceções**: Handler global para erros
 
 ### Application Layer
-- **Serviços**: Casos de uso e lógica de aplicação
-- **Orquestração**: Coordenação entre diferentes serviços
+- **Serviços**: `SenadoApiService`, `ApiExplorerService`
+- **Casos de uso**: Lógica de aplicação específica para o Senado
 
 ### Presentation Layer
-- **Controllers**: Endpoints REST da aplicação
-- **Tratamento de Exceções**: Handler global para erros
+- **Controllers**: Endpoints REST organizados por domínio
+- **Validação**: Tratamento de parâmetros e respostas
 
 ## 🚀 Como Executar
 
@@ -32,69 +45,117 @@ O projeto segue uma arquitetura em camadas bem definidas:
 ### Executando a Aplicação
 ```bash
 cd demo
-mvn spring-boot:run
+mvnw.cmd spring-boot:run
 ```
 
 A aplicação estará disponível em: `http://localhost:8080`
 
 ## 📡 Endpoints Disponíveis
 
-### Health Check
+### 🏛️ API do Senado
+
+#### Proposições Legislativas
 ```
-GET /api/v1/health
+GET /api/v1/senado/proposicoes - Todas as proposições
+GET /api/v1/senado/proposicoes/{id} - Proposição por ID
+GET /api/v1/senado/proposicoes/ano/{ano} - Proposições por ano
 ```
 
-### API Genérica
+#### Senadores
+```
+GET /api/v1/senado/senadores - Todos os senadores
+GET /api/v1/senado/senadores/{id} - Senador por ID
+GET /api/v1/senado/senadores/uf/{uf} - Senadores por UF
+```
+
+#### Sessões Legislativas
+```
+GET /api/v1/senado/sessoes - Todas as sessões
+GET /api/v1/senado/sessoes/{id} - Sessão por ID
+GET /api/v1/senado/sessoes/data/{data} - Sessões por data
+GET /api/v1/senado/sessoes/tipo/{tipo} - Sessões por tipo
+```
+
+### 🔍 Exploração da API
+
+#### Descoberta de Rotas
+```
+GET /api/v1/senado/explorar - Guia de rotas disponíveis
+GET /api/v1/senado/explorar/rotas - Testa todas as rotas principais
+GET /api/v1/senado/explorar/rota?rota={rota} - Testa rota específica
+GET /api/v1/senado/explorar/url?url={url} - Testa URL completa
+GET /api/v1/senado/explorar/parametros - Testa rotas com parâmetros
+GET /api/v1/senado/explorar/relatorio - Relatório completo
+GET /api/v1/senado/explorar/ajuda - Guia de uso
+```
+
+### 🛠️ API Genérica (Legacy)
 ```
 GET /api/v1/consulta?url={URL}&responseType={TIPO}
 POST /api/v1/envio?url={URL}&responseType={TIPO}
-```
-
-### Usuários (Exemplo com JSONPlaceholder)
-```
-GET /api/v1/users
-GET /api/v1/users/{id}
-POST /api/v1/users
+GET /api/v1/health - Health check
 ```
 
 ## 🔧 Exemplos de Uso
 
-### 1. Consultar API Externa Genérica
+### 1. Explorar Rotas da API do Senado
 ```bash
-curl "http://localhost:8080/api/v1/consulta?url=https://jsonplaceholder.typicode.com/users/1&responseType=com.poo.demo.domain.dto.UserDto"
+# Ver todas as rotas disponíveis
+curl "http://localhost:8080/api/v1/senado/explorar"
+
+# Testar todas as rotas principais
+curl "http://localhost:8080/api/v1/senado/explorar/rotas"
+
+# Testar rota específica
+curl "http://localhost:8080/api/v1/senado/explorar/rota?rota=/dadosabertos/materias"
 ```
 
-### 2. Buscar Todos os Usuários
+### 2. Consultar Proposições
 ```bash
-curl "http://localhost:8080/api/v1/users"
+# Todas as proposições
+curl "http://localhost:8080/api/v1/senado/proposicoes"
+
+# Proposição por ID
+curl "http://localhost:8080/api/v1/senado/proposicoes/12345"
+
+# Proposições de 2024
+curl "http://localhost:8080/api/v1/senado/proposicoes/ano/2024"
 ```
 
-### 3. Buscar Usuário por ID
+### 3. Consultar Senadores
 ```bash
-curl "http://localhost:8080/api/v1/users/1"
+# Todos os senadores
+curl "http://localhost:8080/api/v1/senado/senadores"
+
+# Senador por ID
+curl "http://localhost:8080/api/v1/senado/senadores/67890"
+
+# Senadores de São Paulo
+curl "http://localhost:8080/api/v1/senado/senadores/uf/SP"
 ```
 
-### 4. Criar Novo Usuário
+### 4. Consultar Sessões
 ```bash
-curl -X POST "http://localhost:8080/api/v1/users" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "João Silva",
-    "email": "joao@email.com",
-    "username": "joaosilva"
-  }'
+# Todas as sessões
+curl "http://localhost:8080/api/v1/senado/sessoes"
+
+# Sessão por ID
+curl "http://localhost:8080/api/v1/senado/sessoes/11111"
+
+# Sessões de uma data específica
+curl "http://localhost:8080/api/v1/senado/sessoes/data/2024-01-15"
 ```
 
 ## 🎯 Princípios SOLID Aplicados
 
 ### 1. Single Responsibility Principle (SRP)
-- Cada classe tem uma única responsabilidade
-- `UserService` gerencia apenas usuários
-- `HttpClient` gerencia apenas comunicação HTTP
+- `SenadoApiService` gerencia apenas dados do Senado
+- `ApiExplorerService` gerencia apenas exploração de rotas
+- `ProposicaoDto` representa apenas proposições legislativas
 
 ### 2. Open/Closed Principle (OCP)
-- A estrutura permite extensões sem modificação
-- Novos tipos de API podem ser adicionados facilmente
+- Estrutura permite adicionar novos tipos de dados sem modificação
+- Novos endpoints podem ser facilmente implementados
 
 ### 3. Liskov Substitution Principle (LSP)
 - `RestTemplateHttpClient` pode substituir `HttpClient`
@@ -102,7 +163,7 @@ curl -X POST "http://localhost:8080/api/v1/users" \
 
 ### 4. Interface Segregation Principle (ISP)
 - `HttpClient` define apenas métodos necessários
-- Interfaces específicas para diferentes tipos de API
+- DTOs específicos para cada tipo de entidade
 
 ### 5. Dependency Inversion Principle (DIP)
 - Dependências são injetadas via construtor
@@ -128,14 +189,15 @@ curl -X POST "http://localhost:8080/api/v1/users" \
 
 ## 🔄 Extendendo o Projeto
 
-### Adicionando Nova API Externa
+### Adicionando Nova Entidade do Senado
 
 1. **Criar DTO específico**:
 ```java
-public class ProductDto {
+public class ComissaoDto {
     private Long id;
-    private String name;
-    private Double price;
+    private String nome;
+    private String sigla;
+    private String tipo;
     // getters, setters, construtores
 }
 ```
@@ -143,10 +205,10 @@ public class ProductDto {
 2. **Criar serviço específico**:
 ```java
 @Service
-public class ProductService {
+public class ComissaoService {
     private final HttpClient httpClient;
     
-    public ApiResponse<ProductDto[]> buscarProdutos() {
+    public ApiResponse<ComissaoDto[]> buscarComissoes() {
         // implementação
     }
 }
@@ -155,8 +217,8 @@ public class ProductService {
 3. **Criar controller específico**:
 ```java
 @RestController
-@RequestMapping("/api/v1/products")
-public class ProductController {
+@RequestMapping("/api/v1/senado/comissoes")
+public class ComissaoController {
     // endpoints
 }
 ```
@@ -165,7 +227,7 @@ public class ProductController {
 
 Para executar os testes:
 ```bash
-mvn test
+mvnw.cmd test
 ```
 
 ## 📝 Logs
@@ -185,13 +247,24 @@ A aplicação inclui:
 - Tratamento global de exceções
 - Logs estruturados
 - Timeouts configuráveis
+- Endpoints de exploração para debug
 
 ## 📖 Próximos Passos
 
-1. **Validação**: Adicionar Bean Validation
+1. **Validação**: Adicionar Bean Validation para DTOs
 2. **Cache**: Implementar cache para APIs externas
 3. **Rate Limiting**: Adicionar controle de taxa de requisições
 4. **Métricas**: Integrar com Micrometer
 5. **Documentação**: Adicionar Swagger/OpenAPI
 6. **Testes**: Expandir cobertura de testes
 7. **Segurança**: Implementar autenticação/autorização
+8. **Mapeamento**: Adicionar mais DTOs para outras entidades do Senado
+9. **Filtros**: Implementar filtros avançados para consultas
+10. **Paginação**: Adicionar suporte a paginação nas consultas
+
+## 🚨 Importante
+
+- A API do Senado pode ter limitações de taxa de requisições
+- Algumas rotas podem retornar erro 404 (não implementadas)
+- O formato de resposta pode variar entre diferentes endpoints
+- Recomenda-se sempre usar os endpoints de exploração primeiro para entender a estrutura da API
