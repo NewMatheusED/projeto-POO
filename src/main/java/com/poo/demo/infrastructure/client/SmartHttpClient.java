@@ -39,9 +39,10 @@ public class SmartHttpClient {
      * Faz uma requisição GET e retorna sempre no formato JSON padronizado
      * @param url URL da requisição
      * @param responseType Tipo da resposta esperada
+     * @param arrayPath Caminho opcional para extrair o array (ex: "ListaParlamentarEmExercicio.Parlamentares.Parlamentar")
      * @return Objeto da resposta sempre em formato JSON
      */
-    public <T> T get(String url, Class<T> responseType) {
+    public <T> T get(String url, Class<T> responseType, String arrayPath) {
         try {
             // Faz a requisição HTTP uma única vez
             ResponseEntity<String> response = restTemplate.exchange(
@@ -60,7 +61,12 @@ public class SmartHttpClient {
             
             // Se já for JSON, converte diretamente
             if (formatConverter.isJsonResponse(responseBody)) {
-                return jsonMapper.readValue(responseBody, responseType);
+                if (responseType.isArray()) {
+                    // Para arrays, usa o caminho fornecido ou busca automaticamente
+                    return handleJsonArrayResponse(responseBody, responseType, arrayPath);
+                } else {
+                    return jsonMapper.readValue(responseBody, responseType);
+                }
             }
             
             // Caso não seja nenhum dos formatos conhecidos, tenta fazer o parse direto
@@ -97,7 +103,13 @@ public class SmartHttpClient {
             
             // Se já for JSON, converte diretamente
             if (formatConverter.isJsonResponse(responseBody)) {
-                return jsonMapper.readValue(responseBody, responseType);
+                if (responseType.isArray()) {
+                    // Para arrays, precisa extrair o array aninhado do JSON
+                    // Por padrão, procura automaticamente (fallback)
+                    return handleJsonArrayResponse(responseBody, responseType, null);
+                } else {
+                    return jsonMapper.readValue(responseBody, responseType);
+                }
             }
             
             // Caso não seja nenhum dos formatos conhecidos, tenta fazer o parse direto
@@ -143,7 +155,125 @@ public class SmartHttpClient {
         }
     }
 
+    /**
+     * Trata respostas JSON que contêm arrays aninhados
+     * @param jsonResponse Resposta JSON como string
+     * @param responseType Tipo da resposta esperada
+     * @param arrayPath Caminho para extrair o array (ex: "ListaParlamentarEmExercicio.Parlamentares.Parlamentar")
+     * @return Array convertido para o tipo esperado
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T handleJsonArrayResponse(String jsonResponse, Class<T> responseType, String arrayPath) {
+        try {
+            if (!responseType.isArray()) {
+                throw new RuntimeException("Tipo de resposta não é um array: " + responseType);
+            }
+            
+            Class<?> componentType = responseType.getComponentType();
+            
+            // Converte JSON para Map para extrair o array aninhado
+            Map<String, Object> jsonMap = jsonMapper.readValue(jsonResponse, Map.class);
+            
+            // Extrai array usando o caminho fornecido
+            List<Object> arrayData = extractArrayFromJsonMap(jsonMap, arrayPath);
+            
+            // Converte cada item para o DTO usando Jackson
+            List<Object> results = new ArrayList<>();
+            for (Object item : arrayData) {
+                Object dto = jsonMapper.convertValue(item, componentType);
+                results.add(dto);
+            }
+            
+            // Converte para array
+            return (T) results.toArray((Object[]) java.lang.reflect.Array.newInstance(componentType, results.size()));
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao converter JSON para array: " + e.getMessage(), e);
+        }
+    }
 
+    /**
+     * Extrai array de um Map JSON usando caminho específico ou busca automática
+     * @param jsonMap Map JSON
+     * @param arrayPath Caminho para extrair o array (ex: "ListaParlamentarEmExercicio.Parlamentares.Parlamentar")
+     * @return Lista com os dados do array
+     */
+    private List<Object> extractArrayFromJsonMap(Map<String, Object> jsonMap, String arrayPath) {
+        // Se foi fornecido um caminho específico, usa ele
+        if (arrayPath != null && !arrayPath.trim().isEmpty()) {
+            return extractArrayByPath(jsonMap, arrayPath);
+        }
+        
+        // Caso contrário, faz busca automática (fallback)
+        return extractArrayAutomatically(jsonMap);
+    }
+
+    /**
+     * Extrai array usando caminho específico (ex: "a.b.c")
+     * @param jsonMap Map JSON
+     * @param arrayPath Caminho separado por pontos
+     * @return Lista com os dados do array
+     */
+    @SuppressWarnings("unchecked")
+    private List<Object> extractArrayByPath(Map<String, Object> jsonMap, String arrayPath) {
+        try {
+            String[] pathParts = arrayPath.split("\\.");
+            Object current = jsonMap;
+            
+            // Navega pelo caminho
+            for (String part : pathParts) {
+                if (current instanceof Map) {
+                    current = ((Map<String, Object>) current).get(part);
+                } else {
+                    return new ArrayList<>(); // Caminho inválido
+                }
+            }
+            
+            // Se encontrou um array, retorna
+            if (current instanceof List) {
+                return (List<Object>) current;
+            } else if (current instanceof Map) {
+                // Se for um único item, cria uma lista
+                List<Object> singleItem = new ArrayList<>();
+                singleItem.add(current);
+                return singleItem;
+            }
+            
+            return new ArrayList<>();
+            
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Busca automaticamente por arrays no JSON (fallback)
+     * @param jsonMap Map JSON
+     * @return Lista com os dados do array
+     */
+    @SuppressWarnings("unchecked")
+    private List<Object> extractArrayAutomatically(Map<String, Object> jsonMap) {
+        // Procura por qualquer chave que contenha array
+        for (Map.Entry<String, Object> entry : jsonMap.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof List) {
+                return (List<Object>) value;
+            } else if (value instanceof Map) {
+                // Recursivamente procura em objetos aninhados
+                List<Object> nestedArray = extractArrayAutomatically((Map<String, Object>) value);
+                if (!nestedArray.isEmpty()) {
+                    return nestedArray;
+                }
+            }
+        }
+        
+        // Se não encontrou array, trata o próprio objeto como item único
+        List<Object> singleItem = new ArrayList<>();
+        singleItem.add(jsonMap);
+        return singleItem;
+    }
+
+    
 
     /**
      * Obtém a resposta como objeto JSON, convertendo XML se necessário

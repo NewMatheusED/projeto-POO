@@ -23,7 +23,9 @@ public class SenadoApiService {
     public ApiResponse<SenadorDto[]> buscarSenadores() {
         try {
             String url = SENADO_API_BASE + "/senador/lista/atual";
-            SenadorDto[] senadores = httpClient.get(url, SenadorDto[].class);
+            // Especifica o caminho exato para extrair o array de senadores
+            String arrayPath = "ListaParlamentarEmExercicio.Parlamentares.Parlamentar";
+            SenadorDto[] senadores = httpClient.get(url, SenadorDto[].class, arrayPath);
             return ApiResponse.success(senadores);
         } catch (Exception e) {
             return ApiResponse.error("Erro ao buscar senadores: " + e.getMessage(), 500);
