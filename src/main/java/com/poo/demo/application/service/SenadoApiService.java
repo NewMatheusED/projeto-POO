@@ -20,11 +20,16 @@ public class SenadoApiService {
         this.httpClient = httpClient;
     }
 
+    /**
+     * Busca todos os senadores atuais
+     * @return Retorna um array de SenadorDto com os senadores atuais
+     */
     public ApiResponse<SenadorDto[]> buscarSenadores() {
         try {
             String url = SENADO_API_BASE + "/senador/lista/atual";
             // Especifica o caminho exato para extrair o array de senadores
             String arrayPath = "ListaParlamentarEmExercicio.Parlamentares.Parlamentar";
+
             SenadorDto[] senadores = httpClient.get(url, SenadorDto[].class, arrayPath);
             return ApiResponse.success(senadores);
         } catch (Exception e) {
@@ -40,7 +45,6 @@ public class SenadoApiService {
         try {
             String url = SENADO_API_BASE + "/senador/lista/atual";
             
-            // Usa o SmartHttpClient para obter JSON como objeto (sem escape duplo)
             Object jsonObject = httpClient.getAsJsonObject(url);
             return ApiResponse.success(jsonObject);
         } catch (Exception e) {

@@ -24,25 +24,20 @@ public class SenadorDto {
 
     private Object bloco;
     
-    // Campos do Mandato
     private String codigoMandato;
     private String ufParlamentarMandato;
     private String descricaoParticipacao;
     
-    // Primeira Legislatura
     private String primeiraLegislaturaNumero;
     private String primeiraLegislaturaDataInicio;
     private String primeiraLegislaturaDataFim;
     
-    // Segunda Legislatura
     private String segundaLegislaturaNumero;
     private String segundaLegislaturaDataInicio;
     private String segundaLegislaturaDataFim;
     
-    // Suplentes
     private Object suplentes;
     
-    // Exercícios
     private Object exercicios;
 
     @JsonProperty("IdentificacaoParlamentar")
@@ -68,12 +63,10 @@ public class SenadorDto {
     @SuppressWarnings("unchecked")
     private void setMandato(Map<String, Object> mandato) {
         if (mandato != null) {
-            // Campos básicos do mandato
             this.codigoMandato = (String) mandato.get("CodigoMandato");
             this.ufParlamentarMandato = (String) mandato.get("UfParlamentar");
             this.descricaoParticipacao = (String) mandato.get("DescricaoParticipacao");
             
-            // Primeira Legislatura
             Object primeiraLeg = mandato.get("PrimeiraLegislaturaDoMandato");
             if (primeiraLeg instanceof Map) {
                 Map<String, Object> primeira = (Map<String, Object>) primeiraLeg;
@@ -82,7 +75,6 @@ public class SenadorDto {
                 this.primeiraLegislaturaDataFim = (String) primeira.get("DataFim");
             }
             
-            // Segunda Legislatura
             Object segundaLeg = mandato.get("SegundaLegislaturaDoMandato");
             if (segundaLeg instanceof Map) {
                 Map<String, Object> segunda = (Map<String, Object>) segundaLeg;
@@ -91,7 +83,6 @@ public class SenadorDto {
                 this.segundaLegislaturaDataFim = (String) segunda.get("DataFim");
             }
             
-            // Suplentes e Exercícios (mantém como Object para flexibilidade)
             this.suplentes = mandato.get("Suplentes");
             this.exercicios = mandato.get("Exercicios");
         }
@@ -125,7 +116,6 @@ public class SenadorDto {
     public String getUrlPagina() { return urlPagina; }
     public void setUrlPagina(String urlPagina) { this.urlPagina = urlPagina; }
 
-    // Getters e Setters do Mandato
     public String getCodigoMandato() { return codigoMandato; }
     public void setCodigoMandato(String codigoMandato) { this.codigoMandato = codigoMandato; }
     
@@ -135,7 +125,6 @@ public class SenadorDto {
     public String getDescricaoParticipacao() { return descricaoParticipacao; }
     public void setDescricaoParticipacao(String descricaoParticipacao) { this.descricaoParticipacao = descricaoParticipacao; }
     
-    // Primeira Legislatura
     public String getPrimeiraLegislaturaNumero() { return primeiraLegislaturaNumero; }
     public void setPrimeiraLegislaturaNumero(String primeiraLegislaturaNumero) { this.primeiraLegislaturaNumero = primeiraLegislaturaNumero; }
     
@@ -145,7 +134,6 @@ public class SenadorDto {
     public String getPrimeiraLegislaturaDataFim() { return primeiraLegislaturaDataFim; }
     public void setPrimeiraLegislaturaDataFim(String primeiraLegislaturaDataFim) { this.primeiraLegislaturaDataFim = primeiraLegislaturaDataFim; }
     
-    // Segunda Legislatura
     public String getSegundaLegislaturaNumero() { return segundaLegislaturaNumero; }
     public void setSegundaLegislaturaNumero(String segundaLegislaturaNumero) { this.segundaLegislaturaNumero = segundaLegislaturaNumero; }
     
@@ -155,7 +143,6 @@ public class SenadorDto {
     public String getSegundaLegislaturaDataFim() { return segundaLegislaturaDataFim; }
     public void setSegundaLegislaturaDataFim(String segundaLegislaturaDataFim) { this.segundaLegislaturaDataFim = segundaLegislaturaDataFim; }
     
-    // Suplentes e Exercícios
     public Object getSuplentes() { return suplentes; }
     public void setSuplentes(Object suplentes) { this.suplentes = suplentes; }
     

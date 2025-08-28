@@ -105,7 +105,6 @@ public class SmartHttpClient {
             if (formatConverter.isJsonResponse(responseBody)) {
                 if (responseType.isArray()) {
                     // Para arrays, precisa extrair o array aninhado do JSON
-                    // Por padrão, procura automaticamente (fallback)
                     return handleJsonArrayResponse(responseBody, responseType, null);
                 } else {
                     return jsonMapper.readValue(responseBody, responseType);
