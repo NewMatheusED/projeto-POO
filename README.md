@@ -1,270 +1,145 @@
-# Projeto Spring Boot - API do Senado Federal
+# API do Senado - Conversor Universal XML → JSON
 
-Este projeto demonstra como estruturar uma aplicação Spring Boot seguindo os princípios SOLID e object calisthenics para consumir a API do Senado Federal de forma organizada e extensível.
+## 🚀 **Visão Geral**
 
-## 🏛️ Sobre a API do Senado
+Esta API converte automaticamente respostas XML da API do Senado para JSON, usando um conversor universal que funciona com **qualquer estrutura XML** sem precisar definir mapeamentos específicos.
 
-**URL Base**: `https://legis.senado.leg.br`
+## ✨ **Características Principais**
 
-A API do Senado Federal fornece acesso a dados legislativos abertos, incluindo:
-- Proposições legislativas (PL, PEC, MPV, etc.)
-- Informações sobre senadores
-- Sessões legislativas
-- Comissões parlamentares
-- Tramitações e votações
-- Documentos parlamentares
+- **Conversão Automática**: Converte QUALQUER XML para JSON
+- **DTO Simples**: Você só precisa criar o DTO final em JSON
+- **Universal**: Funciona com diferentes APIs (Senado, Câmara, etc.)
+- **SOLID**: Código limpo seguindo princípios SOLID
+- **Spring Boot**: Framework moderno e robusto
 
-## 🏗️ Arquitetura
+## 🔧 **Como Funciona**
 
-O projeto segue uma arquitetura em camadas bem definidas:
+### 1. **Conversor Universal** (`UniversalXmlConverter`)
+- Recebe qualquer XML
+- Converte automaticamente para JSON
+- Não precisa definir estrutura XML
 
-### Domain Layer
-- **Entidades**: `ApiResponse<T>` - Respostas padronizadas
-- **DTOs**: `ProposicaoDto`, `SenadorDto`, `SessaoDto`
-- **Regras de negócio**: Lógica central da aplicação
+### 2. **Cliente Inteligente** (`SmartHttpClient`)
+- Detecta automaticamente o formato da resposta
+- Converte XML para JSON transparentemente
+- Sempre retorna dados em formato JSON
 
-### Infrastructure Layer
-- **Cliente HTTP**: Interface e implementação para consumir APIs externas
-- **Configurações**: Beans e configurações do Spring
-- **Tratamento de Exceções**: Handler global para erros
-
-### Application Layer
-- **Serviços**: `SenadoApiService`, `ApiExplorerService`
-- **Casos de uso**: Lógica de aplicação específica para o Senado
-
-### Presentation Layer
-- **Controllers**: Endpoints REST organizados por domínio
-- **Validação**: Tratamento de parâmetros e respostas
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-- Java 21
-- Maven 3.6+
-
-### Executando a Aplicação
-```bash
-cd demo
-mvnw.cmd spring-boot:run
-```
-
-A aplicação estará disponível em: `http://localhost:8080`
-
-## 📡 Endpoints Disponíveis
-
-### 🏛️ API do Senado
-
-#### Proposições Legislativas
-```
-GET /api/v1/senado/proposicoes - Todas as proposições
-GET /api/v1/senado/proposicoes/{id} - Proposição por ID
-GET /api/v1/senado/proposicoes/ano/{ano} - Proposições por ano
-```
-
-#### Senadores
-```
-GET /api/v1/senado/senadores - Todos os senadores
-GET /api/v1/senado/senadores/{id} - Senador por ID
-GET /api/v1/senado/senadores/uf/{uf} - Senadores por UF
-```
-
-#### Sessões Legislativas
-```
-GET /api/v1/senado/sessoes - Todas as sessões
-GET /api/v1/senado/sessoes/{id} - Sessão por ID
-GET /api/v1/senado/sessoes/data/{data} - Sessões por data
-GET /api/v1/senado/sessoes/tipo/{tipo} - Sessões por tipo
-```
-
-### 🔍 Exploração da API
-
-#### Descoberta de Rotas
-```
-GET /api/v1/senado/explorar - Guia de rotas disponíveis
-GET /api/v1/senado/explorar/rotas - Testa todas as rotas principais
-GET /api/v1/senado/explorar/rota?rota={rota} - Testa rota específica
-GET /api/v1/senado/explorar/url?url={url} - Testa URL completa
-GET /api/v1/senado/explorar/parametros - Testa rotas com parâmetros
-GET /api/v1/senado/explorar/relatorio - Relatório completo
-GET /api/v1/senado/explorar/ajuda - Guia de uso
-```
-
-### 🛠️ API Genérica (Legacy)
-```
-GET /api/v1/consulta?url={URL}&responseType={TIPO}
-POST /api/v1/envio?url={URL}&responseType={TIPO}
-GET /api/v1/health - Health check
-```
-
-## 🔧 Exemplos de Uso
-
-### 1. Explorar Rotas da API do Senado
-```bash
-# Ver todas as rotas disponíveis
-curl "http://localhost:8080/api/v1/senado/explorar"
-
-# Testar todas as rotas principais
-curl "http://localhost:8080/api/v1/senado/explorar/rotas"
-
-# Testar rota específica
-curl "http://localhost:8080/api/v1/senado/explorar/rota?rota=/dadosabertos/materias"
-```
-
-### 2. Consultar Proposições
-```bash
-# Todas as proposições
-curl "http://localhost:8080/api/v1/senado/proposicoes"
-
-# Proposição por ID
-curl "http://localhost:8080/api/v1/senado/proposicoes/12345"
-
-# Proposições de 2024
-curl "http://localhost:8080/api/v1/senado/proposicoes/ano/2024"
-```
-
-### 3. Consultar Senadores
-```bash
-# Todos os senadores
-curl "http://localhost:8080/api/v1/senado/senadores"
-
-# Senador por ID
-curl "http://localhost:8080/api/v1/senado/senadores/67890"
-
-# Senadores de São Paulo
-curl "http://localhost:8080/api/v1/senado/senadores/uf/SP"
-```
-
-### 4. Consultar Sessões
-```bash
-# Todas as sessões
-curl "http://localhost:8080/api/v1/senado/sessoes"
-
-# Sessão por ID
-curl "http://localhost:8080/api/v1/senado/sessoes/11111"
-
-# Sessões de uma data específica
-curl "http://localhost:8080/api/v1/senado/sessoes/data/2024-01-15"
-```
-
-## 🎯 Princípios SOLID Aplicados
-
-### 1. Single Responsibility Principle (SRP)
-- `SenadoApiService` gerencia apenas dados do Senado
-- `ApiExplorerService` gerencia apenas exploração de rotas
-- `ProposicaoDto` representa apenas proposições legislativas
-
-### 2. Open/Closed Principle (OCP)
-- Estrutura permite adicionar novos tipos de dados sem modificação
-- Novos endpoints podem ser facilmente implementados
-
-### 3. Liskov Substitution Principle (LSP)
-- `RestTemplateHttpClient` pode substituir `HttpClient`
-- Implementações são intercambiáveis
-
-### 4. Interface Segregation Principle (ISP)
-- `HttpClient` define apenas métodos necessários
-- DTOs específicos para cada tipo de entidade
-
-### 5. Dependency Inversion Principle (DIP)
-- Dependências são injetadas via construtor
-- Alto nível não depende de baixo nível
-
-## 📚 Object Calisthenics
-
-### 1. Um nível de indentação por método
-- Métodos são curtos e focados
-- Evita aninhamento excessivo
-
-### 2. Não use ELSE
-- Uso de early returns
-- Tratamento de exceções adequado
-
-### 3. Encapsule primitivos
-- Uso de DTOs para transferência de dados
-- Entidades com comportamento
-
-### 4. Coleções de primeira classe
-- Arrays e Collections são tratados adequadamente
-- Uso de generics para type safety
-
-## 🔄 Extendendo o Projeto
-
-### Adicionando Nova Entidade do Senado
-
-1. **Criar DTO específico**:
+### 3. **Uso Simples**
 ```java
-public class ComissaoDto {
-    private Long id;
+// Basta criar o DTO final
+public class SenadorDto {
     private String nome;
-    private String sigla;
-    private String tipo;
-    // getters, setters, construtores
+    private String partido;
+    // ... outros campos
 }
+
+// E usar o conversor universal
+List<SenadorDto> senadores = universalConverter.convertXmlToDtoList(xmlResponse, SenadorDto.class);
 ```
 
-2. **Criar serviço específico**:
+## 📋 **Endpoints Disponíveis**
+
+### **API do Senado**
+- `GET /api/senado/senadores` - Lista de senadores
+- `GET /api/senado/health` - Status da API
+
+## 🏗️ **Arquitetura**
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Controller    │───▶│   Service        │───▶│  SmartHttpClient│
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │                       │
+                                ▼                       ▼
+                       ┌──────────────────┐    ┌─────────────────┐
+                       │UniversalConverter│    │  RestTemplate   │
+                       └──────────────────┘    └─────────────────┘
+```
+
+## 🚀 **Como Usar**
+
+### 1. **Iniciar a Aplicação**
+```bash
+mvn spring-boot:run
+```
+
+### 2. **Testar a API**
+```bash
+# Health check
+curl http://localhost:8080/api/senado/health
+
+# Buscar senadores
+curl http://localhost:8080/api/senado/senadores
+```
+
+### 3. **Adicionar Novas APIs**
 ```java
 @Service
-public class ComissaoService {
-    private final HttpClient httpClient;
+public class NovaApiService {
     
-    public ApiResponse<ComissaoDto[]> buscarComissoes() {
-        // implementação
+    private final SmartHttpClient httpClient;
+    
+    public List<NovoDto> buscarDados() {
+        String url = "https://api.exemplo.com/dados";
+        return httpClient.get(url, NovoDto[].class);
     }
 }
 ```
 
-3. **Criar controller específico**:
-```java
-@RestController
-@RequestMapping("/api/v1/senado/comissoes")
-public class ComissaoController {
-    // endpoints
+## 📁 **Estrutura do Projeto**
+
+```
+src/main/java/com/poo/demo/
+├── application/service/
+│   ├── SenadoApiService.java          # Serviço da API do Senado
+│   ├── UniversalXmlConverter.java     # Conversor universal XML→JSON
+│   └── ResponseFormatConverter.java   # Detector de formatos
+├── domain/dto/
+│   └── SenadorDto.java               # DTO do senador
+├── infrastructure/client/
+│   └── SmartHttpClient.java          # Cliente HTTP inteligente
+└── presentation/controller/
+    └── SenadoController.java         # Controller da API
+```
+
+## 🎯 **Vantagens**
+
+1. **Simplicidade**: Não precisa definir estrutura XML
+2. **Flexibilidade**: Funciona com qualquer API
+3. **Manutenibilidade**: Código limpo e bem estruturado
+4. **Extensibilidade**: Fácil adicionar novas APIs
+5. **Consistência**: Sempre retorna JSON
+
+## 🔍 **Exemplo de Conversão**
+
+### **XML da API do Senado:**
+```xml
+<ListaMateriasTramitando>
+    <Materia>
+        <IdentificacaoMateria>
+            <NomeMateria>PEC sobre Reforma Tributária</NomeMateria>
+            <SiglaMateria>PEC</SiglaMateria>
+        </IdentificacaoMateria>
+    </Materia>
+</ListaMateriasTramitando>
+```
+
+### **DTO Final (JSON):**
+```json
+{
+    "nome": "PEC sobre Reforma Tributária",
+    "sigla": "PEC"
 }
 ```
 
-## 🧪 Testes
+## 🚀 **Próximos Passos**
 
-Para executar os testes:
-```bash
-mvnw.cmd test
-```
+1. **Testar a API** com dados reais
+2. **Adicionar novas APIs** conforme necessário
+3. **Implementar cache** para melhor performance
+4. **Adicionar validações** nos DTOs
+5. **Implementar logs** para monitoramento
 
-## 📝 Logs
+---
 
-A aplicação está configurada para mostrar logs detalhados:
-- `com.poo.demo`: DEBUG
-- `org.springframework.web`: INFO
-
-## 🌐 CORS
-
-CORS está configurado para permitir requisições de qualquer origem durante o desenvolvimento.
-
-## 🔍 Monitoramento
-
-A aplicação inclui:
-- Health check endpoint
-- Tratamento global de exceções
-- Logs estruturados
-- Timeouts configuráveis
-- Endpoints de exploração para debug
-
-## 📖 Próximos Passos
-
-1. **Validação**: Adicionar Bean Validation para DTOs
-2. **Cache**: Implementar cache para APIs externas
-3. **Rate Limiting**: Adicionar controle de taxa de requisições
-4. **Métricas**: Integrar com Micrometer
-5. **Documentação**: Adicionar Swagger/OpenAPI
-6. **Testes**: Expandir cobertura de testes
-7. **Segurança**: Implementar autenticação/autorização
-8. **Mapeamento**: Adicionar mais DTOs para outras entidades do Senado
-9. **Filtros**: Implementar filtros avançados para consultas
-10. **Paginação**: Adicionar suporte a paginação nas consultas
-
-## 🚨 Importante
-
-- A API do Senado pode ter limitações de taxa de requisições
-- Algumas rotas podem retornar erro 404 (não implementadas)
-- O formato de resposta pode variar entre diferentes endpoints
-- Recomenda-se sempre usar os endpoints de exploração primeiro para entender a estrutura da API
+**🎉 Agora você tem uma API limpa e funcional para converter QUALQUER XML para JSON!**

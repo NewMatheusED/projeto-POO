@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Configuração do RestTemplate para consumir APIs externas
+ * Configuração simples do RestTemplate
  * Segue o princípio de inversão de dependência (DIP)
  */
 @Configuration

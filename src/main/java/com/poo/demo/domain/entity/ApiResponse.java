@@ -1,5 +1,4 @@
 package com.poo.demo.domain.entity;
-
 /**
  * Entidade de domínio para representar respostas de API
  * Segue o princípio de responsabilidade única (SRP)

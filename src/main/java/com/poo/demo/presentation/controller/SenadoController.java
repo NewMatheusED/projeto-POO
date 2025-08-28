@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller específico para expor endpoints da API do Senado
- * Segue o princípio de responsabilidade única (SRP)
  */
 @RestController
 @RequestMapping("/api/v1/senado")
@@ -23,6 +22,13 @@ public class SenadoController {
         this.senadoApiService = senadoApiService;
     }
 
-    
+    @GetMapping("/senadores")
+    public ResponseEntity<ApiResponse<SenadorDto[]>> buscarSenadores() {
+        return ResponseEntity.ok(senadoApiService.buscarSenadores());
+    }
 
+    @GetMapping("/json-bruto-senadores")
+    public ResponseEntity<ApiResponse<Object>> buscarJsonBruto() {
+        return ResponseEntity.ok(senadoApiService.buscarJsonBruto());
+    }
 }
