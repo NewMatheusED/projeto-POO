@@ -1,5 +1,4 @@
 package com.poo.demo.infrastructure.client;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poo.demo.application.service.ResponseFormatConverter;
 import com.poo.demo.application.service.UniversalXmlConverter;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -59,13 +59,15 @@ public class SmartHttpClient {
                 return handleXmlResponse(responseBody, responseType);
             }
             
+            System.out.println("responseBody: " + responseBody);
             // Se já for JSON, converte diretamente
             if (formatConverter.isJsonResponse(responseBody)) {
                 if (responseType.isArray()) {
                     // Para arrays, usa o caminho fornecido ou busca automaticamente
                     return handleJsonArrayResponse(responseBody, responseType, arrayPath);
                 } else {
-                    return jsonMapper.readValue(responseBody, responseType);
+                    // Para objetos únicos, usa o caminho fornecido se existir
+                    return handleJsonObjectResponse(responseBody, responseType, arrayPath);
                 }
             }
             
@@ -192,6 +194,115 @@ public class SmartHttpClient {
     }
 
     /**
+     * Trata respostas JSON que contêm objetos únicos
+     * @param jsonResponse Resposta JSON como string
+     * @param responseType Tipo da resposta esperada
+     * @param arrayPath Caminho para extrair o objeto (pode ser null)
+     * @return Objeto convertido para o tipo esperado
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T handleJsonObjectResponse(String jsonResponse, Class<T> responseType, String arrayPath) {
+        try {
+            // Converte JSON para Map
+            Map<String, Object> jsonMap = jsonMapper.readValue(jsonResponse, Map.class);
+
+            // Extrai o objeto usando o caminho fornecido
+            Object result = extractObjectFromJsonMap(jsonMap, arrayPath);
+            
+            System.out.println("=== DEBUG handleJsonObjectResponse ===");
+            System.out.println("responseType: " + responseType.getName());
+            System.out.println("arrayPath: " + arrayPath);
+            System.out.println("result type: " + (result != null ? result.getClass().getName() : "null"));
+            System.out.println("result: " + result);
+
+            // Converte para o DTO usando Jackson
+            T converted = jsonMapper.convertValue(result, responseType);
+            System.out.println("converted: " + converted);
+            System.out.println("=== END DEBUG ===");
+            
+            return converted;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao converter JSON para objeto: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Extrai objeto de um Map JSON usando caminho específico ou busca automática
+     * @param jsonMap Map JSON
+     * @param objectPath Caminho para extrair o objeto (ex: "ListaParlamentarEmExercicio.Parlamentares.Parlamentar")
+     * @return Objeto extraído
+     */
+    private Object extractObjectFromJsonMap(Map<String, Object> jsonMap, String objectPath) {
+        // Se foi fornecido um caminho específico, usa ele
+        if (objectPath != null && !objectPath.trim().isEmpty()) {
+            return extractObjectByPath(jsonMap, objectPath);
+        }
+        
+        // Caso contrário, faz busca automática (fallback)
+        return extractObjectAutomatically(jsonMap);
+    }
+
+    /**
+     * Extrai objeto usando caminho específico (ex: "a.b.c")
+     * @param jsonMap Map JSON
+     * @param objectPath Caminho separado por pontos
+     * @return Objeto extraído
+     */
+    @SuppressWarnings("unchecked")
+    private Object extractObjectByPath(Map<String, Object> jsonMap, String objectPath) {
+        try {
+            System.out.println("objectPath: " + objectPath);
+            System.out.println("jsonMap: " + jsonMap);
+            String[] pathParts = objectPath.split("\\.");
+            System.out.println("pathParts: " + Arrays.toString(pathParts));
+            Object current = jsonMap;
+            
+            // Navega pelo caminho
+            for (String part : pathParts) {
+                if (current instanceof Map) {
+                    current = ((Map<String, Object>) current).get(part);
+                } else if (current instanceof List) {
+                    current = ((List<Object>) current).get(Integer.parseInt(part));
+                } else {
+                    return null; // Caminho inválido
+                }
+            }
+            
+            // Se encontrou um objeto, retorna
+            return current;
+            
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Busca automaticamente por objetos no JSON (fallback)
+     * @param jsonMap Map JSON
+     * @return Objeto extraído
+     */
+    @SuppressWarnings("unchecked")
+    private Object extractObjectAutomatically(Map<String, Object> jsonMap) {
+        // Procura por qualquer chave que contenha objeto
+        for (Map.Entry<String, Object> entry : jsonMap.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                return value;
+            } else if (value instanceof List) {
+                // Se for uma lista, procura no primeiro item se for um Map
+                List<Object> list = (List<Object>) value;
+                if (!list.isEmpty() && list.get(0) instanceof Map) {
+                    return extractObjectAutomatically((Map<String, Object>) list.get(0));
+                }
+            }
+        }
+        
+        // Se não encontrou objeto, trata o próprio objeto como item único
+        return jsonMap;
+    }
+
+    /**
      * Extrai array de um Map JSON usando caminho específico ou busca automática
      * @param jsonMap Map JSON
      * @param arrayPath Caminho para extrair o array (ex: "ListaParlamentarEmExercicio.Parlamentares.Parlamentar")
@@ -216,13 +327,18 @@ public class SmartHttpClient {
     @SuppressWarnings("unchecked")
     private List<Object> extractArrayByPath(Map<String, Object> jsonMap, String arrayPath) {
         try {
+            System.out.println("arrayPath: " + arrayPath);
+            System.out.println("jsonMap: " + jsonMap);
             String[] pathParts = arrayPath.split("\\.");
+            System.out.println("pathParts: " + Arrays.toString(pathParts));
             Object current = jsonMap;
             
             // Navega pelo caminho
             for (String part : pathParts) {
                 if (current instanceof Map) {
                     current = ((Map<String, Object>) current).get(part);
+                } else if (current instanceof List) {
+                    current = ((List<Object>) current).get(Integer.parseInt(part));
                 } else {
                     return new ArrayList<>(); // Caminho inválido
                 }
@@ -292,6 +408,7 @@ public class SmartHttpClient {
             
             // Se a resposta for XML, converte para JSON válido
             if (formatConverter.isXmlResponse(responseBody)) {
+                // Conversão universal sem dependências específicas
                 return universalConverter.convertXmlToJsonMap(responseBody);
             }
             

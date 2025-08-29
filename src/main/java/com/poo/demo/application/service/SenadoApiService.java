@@ -1,5 +1,6 @@
 package com.poo.demo.application.service;
 import com.poo.demo.domain.dto.SenadorDto;
+import com.poo.demo.domain.dto.SenadorDetailDto;
 import com.poo.demo.domain.entity.ApiResponse;
 import com.poo.demo.domain.entity.Senador;
 import com.poo.demo.infrastructure.client.SmartHttpClient;
@@ -69,6 +70,27 @@ public class SenadoApiService {
             return ApiResponse.success(senadores);
         } catch (Exception e) {
             return ApiResponse.error("Erro ao importar senadores: " + e.getMessage(), 500);
+        }
+    }
+
+    public ApiResponse<Object> buscarDetalheSenadorBruto(String codigo) {
+        try {
+            String url = SENADO_API_BASE + "/senador/" + codigo;
+            Object jsonObject = httpClient.getAsJsonObject(url);
+            return ApiResponse.success(jsonObject);
+        } catch (Exception e) {
+            return ApiResponse.error("Erro ao buscar detalhe do senador: " + e.getMessage(), 500);
+        }
+    }
+
+    public ApiResponse<SenadorDetailDto.Parlamentar> buscarDetalheSenador(String codigo) {
+        try {
+            String url = SENADO_API_BASE + "/senador/" + codigo;
+            String objectPath = "DetalheParlamentar.Parlamentar";
+            SenadorDetailDto.Parlamentar senador = httpClient.get(url, SenadorDetailDto.Parlamentar.class, objectPath);
+            return ApiResponse.success(senador);
+        } catch (Exception e) {
+            return ApiResponse.error("Erro ao buscar detalhe do senador: " + e.getMessage(), 500);
         }
     }
 }
