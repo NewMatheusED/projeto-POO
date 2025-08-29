@@ -31,4 +31,9 @@ public class SenadoController {
     public ResponseEntity<ApiResponse<Object>> buscarJsonBruto() {
         return ResponseEntity.ok(senadoApiService.buscarJsonBruto());
     }
+
+    @PostMapping("/senadores/importar")
+    public ResponseEntity<ApiResponse<SenadorDto[]>> importarSenadores() {
+        return ResponseEntity.ok(senadoApiService.importarSenadores());
+    }
 }

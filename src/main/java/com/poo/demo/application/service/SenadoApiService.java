@@ -1,6 +1,8 @@
 package com.poo.demo.application.service;
+import com.poo.demo.application.service.SenadorService;
 import com.poo.demo.domain.dto.SenadorDto;
 import com.poo.demo.domain.entity.ApiResponse;
+import com.poo.demo.domain.entity.Senador;
 import com.poo.demo.infrastructure.client.SmartHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,12 @@ import org.springframework.stereotype.Service;
 public class SenadoApiService {
 
     private final SmartHttpClient httpClient;
+    private final SenadorService senadorService;
     private static final String SENADO_API_BASE = "https://legis.senado.leg.br/dadosabertos";
 
     @Autowired
-    public SenadoApiService(SmartHttpClient httpClient) {
+    public SenadoApiService(SmartHttpClient httpClient, SenadorService senadorService) {
+        this.senadorService = senadorService;
         this.httpClient = httpClient;
     }
 
@@ -50,5 +54,52 @@ public class SenadoApiService {
         } catch (Exception e) {
             return ApiResponse.error("Erro ao buscar JSON válido: " + e.getMessage(), 500);
         }
+    }
+
+    public ApiResponse<SenadorDto[]> importarSenadores() {
+        try {
+            String url = SENADO_API_BASE + "/senador/lista/atual";
+            SenadorDto[] senadores = httpClient.get(url, SenadorDto[].class, "ListaParlamentarEmExercicio.Parlamentares.Parlamentar");
+            
+            // Converte e salva cada senador
+            for (SenadorDto senadorDto : senadores) {
+                Senador senador = converterSenadorDtoParaEntidade(senadorDto);
+                senadorService.criarSenador(senador);
+            }
+            
+            return ApiResponse.success(senadores);
+        } catch (Exception e) {
+            return ApiResponse.error("Erro ao importar senadores: " + e.getMessage(), 500);
+        }
+    }
+
+    private Senador converterSenadorDtoParaEntidade(SenadorDto senadorDto) {
+        return Senador.builder()
+            .codigo(senadorDto.getCodigo())
+            .nome(senadorDto.getNome())
+            .nomeCompleto(senadorDto.getNomeCompleto())
+            .sexo(senadorDto.getSexo())
+            .partido(senadorDto.getPartido())
+            .uf(senadorDto.getUf())
+            .email(senadorDto.getEmail())
+            .urlFoto(senadorDto.getUrlFoto())
+            .urlPagina(senadorDto.getUrlPagina())
+            .siglaPartido(senadorDto.getSiglaPartido())
+            .ufParlamentar(senadorDto.getUfParlamentar())
+            .membroMesa(senadorDto.getMembroMesa())
+            .membroLideranca(senadorDto.getMembroLideranca())
+            .bloco(senadorDto.getBloco() != null ? senadorDto.getBloco().toString() : null)
+            .codigoMandato(senadorDto.getCodigoMandato())
+            .ufParlamentarMandato(senadorDto.getUfParlamentarMandato())
+            .descricaoParticipacao(senadorDto.getDescricaoParticipacao())
+            .primeiraLegislaturaNumero(senadorDto.getPrimeiraLegislaturaNumero())
+            .primeiraLegislaturaDataInicio(senadorDto.getPrimeiraLegislaturaDataInicio())
+            .primeiraLegislaturaDataFim(senadorDto.getPrimeiraLegislaturaDataFim())
+            .segundaLegislaturaNumero(senadorDto.getSegundaLegislaturaNumero())
+            .segundaLegislaturaDataInicio(senadorDto.getSegundaLegislaturaDataInicio())
+            .segundaLegislaturaDataFim(senadorDto.getSegundaLegislaturaDataFim())
+            .suplentes(senadorDto.getSuplentes() != null ? senadorDto.getSuplentes().toString() : null)
+            .exercicios(senadorDto.getExercicios() != null ? senadorDto.getExercicios().toString() : null)
+            .build();
     }
 }
