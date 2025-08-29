@@ -7,6 +7,7 @@ import com.poo.demo.domain.entity.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.poo.demo.domain.dto.VotacaoParlamentarDto;
 
 /**
  * Controller específico para expor endpoints da API do Senado
@@ -46,5 +47,15 @@ public class SenadoController {
     @GetMapping("/senadores/{codigo}/detalhe")
     public ResponseEntity<ApiResponse<SenadorDetailDto.Parlamentar>> buscarDetalheSenador(@PathVariable String codigo) {
         return ResponseEntity.ok(senadoApiService.buscarDetalheSenador(codigo));
+    }
+
+    @GetMapping("/senadores/{codigo}/votacoes/json-bruto")
+    public ResponseEntity<ApiResponse<Object>> buscarVotacoesSenadorBruto(@PathVariable String codigo) {
+        return ResponseEntity.ok(senadoApiService.buscarVotosSenadorBruto(codigo));
+    }
+
+    @GetMapping("/senadores/{codigo}/votacoes")
+    public ResponseEntity<ApiResponse<VotacaoParlamentarDto.Votacoes[]>> buscarVotacoesSenador(@PathVariable String codigo) {
+        return ResponseEntity.ok(senadoApiService.buscarVotacoesSenador(codigo));
     }
 }
