@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
+
 /**
  * Repositório para a entidade Senador.
  * Segue os princípios SOLID e padrão Repository.
@@ -44,6 +46,7 @@ public interface SenadorRepository extends JpaRepository<Senador, Long> {
     /**
      * Busca todos os senadores.
      */
+    @NonNull
     List<Senador> findAll();
     
     /**

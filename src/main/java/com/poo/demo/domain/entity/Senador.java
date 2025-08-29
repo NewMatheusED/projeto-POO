@@ -66,7 +66,7 @@ public class Senador {
     private String membroLideranca;
     
     @Column(name = "bloco", columnDefinition = "TEXT")
-    private Object bloco;
+    private String bloco;
     
     @Column(name = "codigo_mandato", length = 100)
     private String codigoMandato;
@@ -96,10 +96,10 @@ public class Senador {
     private String segundaLegislaturaDataFim;
     
     @Column(name = "suplentes", columnDefinition = "TEXT")
-    private Object suplentes;
+    private String suplentes;
     
     @Column(name = "exercicios", columnDefinition = "TEXT")
-    private Object exercicios;
+    private String exercicios;
     
     @CreationTimestamp
     @Column(name = "data_criacao", nullable = false, updatable = false)

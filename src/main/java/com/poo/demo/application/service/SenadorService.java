@@ -229,7 +229,7 @@ public class SenadorService {
     /**
      * Converte SenadorDto para entidade Senador
      */
-    private Senador converterSenadorDtoParaEntidade(SenadorDto dto) {
+    public Senador converterSenadorDtoParaEntidade(SenadorDto dto) {
         return Senador.builder()
             .codigo(dto.getCodigo())
             .nome(dto.getNome())
@@ -244,7 +244,7 @@ public class SenadorService {
             .ufParlamentar(dto.getUfParlamentar())
             .membroMesa(dto.getMembroMesa())
             .membroLideranca(dto.getMembroLideranca())
-            .bloco(dto.getBloco())
+            .bloco(dto.getBloco() != null ? dto.getBloco().toString() : null)
             .codigoMandato(dto.getCodigoMandato())
             .ufParlamentarMandato(dto.getUfParlamentarMandato())
             .descricaoParticipacao(dto.getDescricaoParticipacao())
@@ -254,8 +254,8 @@ public class SenadorService {
             .segundaLegislaturaNumero(dto.getSegundaLegislaturaNumero())
             .segundaLegislaturaDataInicio(dto.getSegundaLegislaturaDataInicio())
             .segundaLegislaturaDataFim(dto.getSegundaLegislaturaDataFim())
-            .suplentes(dto.getSuplentes())
-            .exercicios(dto.getExercicios())
+            .suplentes(dto.getSuplentes() != null ? dto.getSuplentes().toString() : null)
+            .exercicios(dto.getExercicios() != null ? dto.getExercicios().toString() : null)
             .build();
     }  
 }
