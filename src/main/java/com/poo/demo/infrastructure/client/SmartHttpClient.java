@@ -208,17 +208,9 @@ public class SmartHttpClient {
 
             // Extrai o objeto usando o caminho fornecido
             Object result = extractObjectFromJsonMap(jsonMap, arrayPath);
-            
-            System.out.println("=== DEBUG handleJsonObjectResponse ===");
-            System.out.println("responseType: " + responseType.getName());
-            System.out.println("arrayPath: " + arrayPath);
-            System.out.println("result type: " + (result != null ? result.getClass().getName() : "null"));
-            System.out.println("result: " + result);
 
             // Converte para o DTO usando Jackson
             T converted = jsonMapper.convertValue(result, responseType);
-            System.out.println("converted: " + converted);
-            System.out.println("=== END DEBUG ===");
             
             return converted;
 
