@@ -1,0 +1,2 @@
+-- Aqui e onde sera criado as tabelas do sistema. Ate o momento, nao ha tabelas para criar.
+-- Tudo ja esta configurando para a conexao com o banco de dados.
