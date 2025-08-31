@@ -1,145 +1,240 @@
-# API do Senado - Conversor Universal XML → JSON
+# 🏛️ API de Análise de Senadores - Sistema de Conversão Universal XML → JSON
 
 ## 🚀 **Visão Geral**
 
-Esta API converte automaticamente respostas XML da API do Senado para JSON, usando um conversor universal que funciona com **qualquer estrutura XML** sem precisar definir mapeamentos específicos.
+Sistema robusto de análise de dados parlamentares que converte automaticamente respostas XML da API do Senado para JSON, implementando arquitetura limpa seguindo princípios SOLID e object calisthenics. O projeto oferece uma solução universal para conversão de dados XML de qualquer API governamental para formato JSON estruturado.
 
 ## ✨ **Características Principais**
 
-- **Conversão Automática**: Converte QUALQUER XML para JSON
-- **DTO Simples**: Você só precisa criar o DTO final em JSON
-- **Universal**: Funciona com diferentes APIs (Senado, Câmara, etc.)
-- **SOLID**: Código limpo seguindo princípios SOLID
-- **Spring Boot**: Framework moderno e robusto
+- **🔄 Conversão Universal**: Converte qualquer estrutura XML para JSON automaticamente
+- **🏗️ Arquitetura Limpa**: Implementação seguindo princípios SOLID e object calisthenics
+- **📊 Múltiplas APIs**: Suporte para Senado e Processos Legislativos ate o momento
+- **💾 Persistência**: Banco MySQL com Flyway para migrações
+- **🔍 Dados Detalhados**: Informações completas de senadores, processos e votações
+- **⚡ Performance**: Cliente HTTP inteligente com detecção automática de formato
+- **🛡️ Tratamento de Erros**: Sistema robusto de tratamento de exceções
 
-## 🔧 **Como Funciona**
+## 🏛️ **Funcionalidades Implementadas**
 
-### 1. **Conversor Universal** (`UniversalXmlConverter`)
-- Recebe qualquer XML
-- Converte automaticamente para JSON
-- Não precisa definir estrutura XML
+### **1. API do Senado**
+- **Lista de Senadores**: Informações básicas de todos os senadores
+- **Detalhes de Senador**: Dados completos incluindo telefones, serviços e informações parlamentares
+- **Histórico de Votações**: Votações detalhadas de cada senador com tramitações
+- **Dados Brutos**: Acesso ao JSON bruto para análise avançada
 
-### 2. **Cliente Inteligente** (`SmartHttpClient`)
-- Detecta automaticamente o formato da resposta
-- Converte XML para JSON transparentemente
-- Sempre retorna dados em formato JSON
+### **2. API de Processos Legislativos**
+- **Emendas de Processos**: Busca emendas de processos específicos
+- **Dados de Tramitação**: Informações sobre tramitação legislativa
+- **Conversão Automática**: XML → JSON transparente
 
-### 3. **Uso Simples**
-```java
-// Basta criar o DTO final
-public class SenadorDto {
-    private String nome;
-    private String partido;
-    // ... outros campos
-}
+## 🔧 **Arquitetura do Sistema**
 
-// E usar o conversor universal
-List<SenadorDto> senadores = universalConverter.convertXmlToDtoList(xmlResponse, SenadorDto.class);
+### **Padrão de Camadas (Clean Architecture)**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                      │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │SenadoCtrl   │  │ProcessoCtrl │  │   ApiController     │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   APPLICATION LAYER                        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │SenadoService│  │ProcessoService│  │  ExternalApiService │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  INFRASTRUCTURE LAYER                      │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │SmartHttpCl  │  │HttpClient   │  │  RestTemplateConfig │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## 📋 **Endpoints Disponíveis**
+### **Princípios SOLID Implementados**
 
-### **API do Senado**
-- `GET /api/senado/senadores` - Lista de senadores
-- `GET /api/senado/health` - Status da API
+1. **Single Responsibility Principle (SRP)**
+   - Cada serviço tem uma responsabilidade específica
+   - Controllers focados apenas na exposição de endpoints
 
-## 🏗️ **Arquitetura**
+2. **Open/Closed Principle (OCP)**
+   - Sistema extensível para novas APIs sem modificar código existente
+   - Conversor universal funciona com qualquer estrutura XML
 
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Controller    │───▶│   Service        │───▶│  SmartHttpClient│
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │                       │
-                                ▼                       ▼
-                       ┌──────────────────┐    ┌─────────────────┐
-                       │UniversalConverter│    │  RestTemplate   │
-                       └──────────────────┘    └─────────────────┘
-```
+3. **Liskov Substitution Principle (LSP)**
+   - Interface `HttpClient` permite diferentes implementações
+   - `SmartHttpClient` e `RestTemplateHttpClient` são intercambiáveis
 
-## 🚀 **Como Usar**
+4. **Interface Segregation Principle (ISP)**
+   - Interfaces específicas para cada tipo de operação
+   - DTOs especializados para diferentes contextos
 
-### 1. **Iniciar a Aplicação**
+5. **Dependency Inversion Principle (DIP)**
+   - Dependências injetadas via construtor
+   - Abstrações não dependem de implementações concretas
+
+## 📋 **Endpoints da API**
+
+### **Base URL**: `http://localhost:8080/api/v1`
+
+#### **🏛️ Senado** (`/senado`)
+- `GET /senadores` - Lista todos os senadores
+- `GET /senadores/json-bruto` - Dados brutos dos senadores
+- `GET /senadores/{codigo}/detalhe` - Detalhes completos de um senador
+- `GET /senadores/{codigo}/detalhe/json-bruto` - Dados brutos do detalhe
+- `GET /senadores/{codigo}/votacoes` - Histórico de votações do senador
+- `GET /senadores/{codigo}/votacoes/json-bruto` - Votações em formato bruto
+
+#### **📜 Processos Legislativos** (`/processo`)
+- `GET /{codigo}` - Emendas de um processo específico
+- `GET /{codigo}/json-bruto` - Dados brutos do processo
+
+## 🚀 **Como Executar**
+
+### **Pré-requisitos**
+- Java 21+
+- Maven 3.6+
+- MySQL > 8.0 < 8.4
+- Docker (opcional)
+
+### **1. Configuração do Banco de Dados**
 ```bash
-mvn spring-boot:run
+# Variáveis de ambiente necessárias
+export MYSQL_HOST=localhost
+export MYSQL_PORT=3306
+export MYSQL_DATABASE=analise_senadores
+export MYSQL_USER=seu_usuario
+export MYSQL_PASSWORD=sua_senha
+export MYSQL_CHARSET=utf8mb4
 ```
 
-### 2. **Testar a API**
+### **2. Executar a Aplicação**
+```bash
+# Clonar o repositório
+git clone <seu-repositorio>
+cd demo
+
+# Instalar dependências
+mvn clean install
+
+# Executar
+run.bat
+```
+
+### **3. Testar a API**
 ```bash
 # Health check
-curl http://localhost:8080/api/senado/health
+curl http://localhost:8080/api/v1/senado/senadores
 
-# Buscar senadores
-curl http://localhost:8080/api/senado/senadores
+# Buscar detalhes de um senador
+curl http://localhost:8080/api/v1/senado/senadores/1234/detalhe
+
+# Buscar emendas de um processo
+curl http://localhost:8080/api/v1/processo/123456
 ```
 
-### 3. **Adicionar Novas APIs**
-```java
-@Service
-public class NovaApiService {
-    
-    private final SmartHttpClient httpClient;
-    
-    public List<NovoDto> buscarDados() {
-        String url = "https://api.exemplo.com/dados";
-        return httpClient.get(url, NovoDto[].class);
-    }
-}
-```
-
-## 📁 **Estrutura do Projeto**
+## 🏗️ **Estrutura do Projeto**
 
 ```
 src/main/java/com/poo/demo/
-├── application/service/
-│   ├── SenadoApiService.java          # Serviço da API do Senado
-│   ├── UniversalXmlConverter.java     # Conversor universal XML→JSON
-│   └── ResponseFormatConverter.java   # Detector de formatos
-├── domain/dto/
-│   └── SenadorDto.java               # DTO do senador
-├── infrastructure/client/
-│   └── SmartHttpClient.java          # Cliente HTTP inteligente
-└── presentation/controller/
-    └── SenadoController.java         # Controller da API
+├── application/service/           # Camada de Aplicação
+│   ├── SenadoApiService.java     # Serviço específico do Senado
+│   ├── ProcessoApiService.java   # Serviço de processos legislativos
+│   ├── ExternalApiService.java   # Serviço para APIs externas
+│   ├── UniversalXmlConverter.java # Conversor universal XML→JSON
+│   └── ResponseFormatConverter.java # Detector de formatos
+├── domain/                       # Camada de Domínio
+│   ├── dto/                     # Data Transfer Objects
+│   │   ├── SenadorDto.java      # DTO básico de senador
+│   │   ├── SenadorDetailDto.java # DTO detalhado de senador
+│   │   ├── ProcessoDto.java     # DTO de processo legislativo
+│   │   └── VotacaoParlamentarDto.java # DTO de votações
+│   └── entity/                  # Entidades de domínio
+│       └── ApiResponse.java     # Resposta padronizada da API
+├── infrastructure/               # Camada de Infraestrutura
+│   ├── client/                  # Clientes HTTP
+│   │   ├── HttpClient.java      # Interface HTTP
+│   │   ├── SmartHttpClient.java # Cliente inteligente
+│   │   └── RestTemplateHttpClient.java # Implementação RestTemplate
+│   ├── config/                  # Configurações
+│   │   └── RestTemplateConfig.java # Configuração do RestTemplate
+│   └── exception/               # Tratamento de exceções
+│       └── GlobalExceptionHandler.java # Handler global
+└── presentation/                 # Camada de Apresentação
+    └── controller/              # Controllers REST
+        ├── SenadoController.java # Controller do Senado
+        ├── ProcessoController.java # Controller de processos
+        └── ApiController.java    # Controller genérico
 ```
 
-## 🎯 **Vantagens**
+## 🎯 **Vantagens da Arquitetura**
 
-1. **Simplicidade**: Não precisa definir estrutura XML
-2. **Flexibilidade**: Funciona com qualquer API
-3. **Manutenibilidade**: Código limpo e bem estruturado
-4. **Extensibilidade**: Fácil adicionar novas APIs
-5. **Consistência**: Sempre retorna JSON
+### **1. Manutenibilidade**
+- Código organizado em camadas bem definidas
+- Responsabilidades claramente separadas
+- Fácil localização e modificação de funcionalidades
 
-## 🔍 **Exemplo de Conversão**
+### **2. Extensibilidade**
+- Adicionar novas APIs sem modificar código existente
+- Conversor universal funciona com qualquer estrutura XML
+- Sistema de plugins para novas funcionalidades
 
-### **XML da API do Senado:**
-```xml
-<ListaMateriasTramitando>
-    <Materia>
-        <IdentificacaoMateria>
-            <NomeMateria>PEC sobre Reforma Tributária</NomeMateria>
-            <SiglaMateria>PEC</SiglaMateria>
-        </IdentificacaoMateria>
-    </Materia>
-</ListaMateriasTramitando>
+### **3. Testabilidade**
+- Dependências injetadas facilitam testes unitários
+- Interfaces bem definidas permitem mocks
+- Separação de responsabilidades facilita testes isolados
+
+### **4. Performance**
+- Cliente HTTP inteligente com cache automático
+- Conversão XML→JSON otimizada
+- Tratamento assíncrono de requisições
+
+## 🔍 **Exemplos de Uso**
+
+### **Buscar Senadores**
+```java
+@Autowired
+private SenadoApiService senadoService;
+
+// Buscar todos os senadores
+ApiResponse<SenadorDto[]> response = senadoService.buscarSenadores();
+if (response.isSuccess()) {
+    SenadorDto[] senadores = response.getData();
+    // Processar dados...
+}
 ```
 
-### **DTO Final (JSON):**
-```json
-{
-    "nome": "PEC sobre Reforma Tributária",
-    "sigla": "PEC"
+### **Consultar Processo Legislativo**
+```java
+@Autowired
+private ProcessoApiService processoService;
+
+// Buscar emendas de um processo
+ApiResponse<ProcessoDto[]> response = processoService.buscarEmendasProcesso("PEC001");
+if (response.isSuccess()) {
+    ProcessoDto[] emendas = response.getData();
+    // Analisar emendas...
 }
 ```
 
 ## 🚀 **Próximos Passos**
 
-1. **Testar a API** com dados reais
-2. **Adicionar novas APIs** conforme necessário
-3. **Implementar cache** para melhor performance
-4. **Adicionar validações** nos DTOs
-5. **Implementar logs** para monitoramento
+### **Funcionalidades Planejadas**
+1. **📊 Dashboard Web**: Interface gráfica para análise de dados
+2. **🔍 Busca Avançada**: Filtros e pesquisa por múltiplos critérios
+3. **📈 Análise Estatística**: Relatórios e métricas parlamentares
 
----
+### **Melhorias Técnicas**
+1. **⚡ Cache Redis**: Cache distribuído para melhor performance
+2. **📝 Logs Estruturados**: Sistema de logging avançado
+5. **🧪 Testes**: Cobertura completa de testes
 
-**🎉 Agora você tem uma API limpa e funcional para converter QUALQUER XML para JSON!**
+### **Padrões de Código**
+- Seguir princípios SOLID
+- Implementar object calisthenics
+- Manter cobertura de testes acima de 80%
+- Usar nomes descritivos para variáveis e métodos

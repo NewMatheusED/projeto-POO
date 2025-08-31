@@ -130,7 +130,6 @@ public class SmartHttpClient {
     @SuppressWarnings("unchecked")
     private <T> T handleXmlResponse(String xmlResponse, Class<T> responseType) {
         try {
-            // Usa o conversor universal para QUALQUER tipo de XML
             if (responseType.isArray()) {
                 // Para arrays, converte para lista genérica e depois para array
                 Class<?> componentType = responseType.getComponentType();
