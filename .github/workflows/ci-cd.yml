@@ -38,7 +38,7 @@ jobs:
         distribution: 'eclipse-temurin'
 
     - name: Cache dependências Maven
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -58,7 +58,7 @@ jobs:
       run: mvn clean package -DskipTests
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: jar-artifact
         path: target/*.jar
