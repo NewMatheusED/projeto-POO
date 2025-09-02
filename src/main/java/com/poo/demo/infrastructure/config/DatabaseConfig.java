@@ -1,6 +1,7 @@
 package com.poo.demo.infrastructure.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -10,7 +11,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
- * Configuração personalizada para o banco de dados.
+ * Configuração personalizada para o banco de dados PostgreSQL (produção).
  * 
  * Esta classe resolve o problema de conversão da DATABASE_URL do Render
  * de postgresql:// para jdbc:postgresql://, seguindo os princípios SOLID:
@@ -18,8 +19,11 @@ import com.zaxxer.hikari.HikariDataSource;
  * - Single Responsibility: Responsável apenas pela configuração do DataSource
  * - Open/Closed: Pode ser estendida sem modificação
  * - Dependency Inversion: Depende de abstrações (DataSource)
+ * 
+ * Só é ativada quando DATABASE_URL está definida (ambiente Render/produção)
  */
 @Configuration
+@ConditionalOnProperty(name = "DATABASE_URL")
 public class DatabaseConfig {
 
     @Value("${DATABASE_URL:}")

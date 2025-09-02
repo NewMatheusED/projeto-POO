@@ -9,6 +9,9 @@ FOR /F "tokens=1,* delims==" %%A IN (.env) DO (
     set %%A=%%B
 )
 
+REM Define o profile de desenvolvimento
+set SPRING_PROFILES_ACTIVE=dev
+
 REM Executa a aplicação Spring Boot usando Maven
 echo Iniciando a aplicação Spring Boot...
 call mvnw.cmd spring-boot:run
