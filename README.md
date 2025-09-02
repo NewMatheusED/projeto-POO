@@ -111,7 +111,7 @@ export MYSQL_PORT=3306
 export MYSQL_DATABASE=analise_senadores
 export MYSQL_USER=seu_usuario
 export MYSQL_PASSWORD=sua_senha
-export MYSQL_CHARSET=UTF-8u
+export MYSQL_CHARSET=utf8
 ```
 
 #### **Executar a Aplicação**
@@ -179,14 +179,15 @@ render login
 1. Acesse [render.com](https://render.com)
 2. Conecte sua conta GitHub
 3. Crie um novo "Web Service"
-4. Selecione seu repositório
-5. Configure as variáveis de ambiente
-6. Deploy automático!
+4. **Escolha "Docker" como environment** (não Java!)
+5. Selecione seu repositório
+6. Configure as variáveis de ambiente
+7. Deploy automático!
 
 #### **📖 Guia Completo de Configuração**
 Para instruções detalhadas passo a passo, consulte o arquivo **[RENDER_SETUP.md](./RENDER_SETUP.md)** que inclui:
 - Criação de conta e configuração inicial
-- Configuração do banco de dados MySQL
+- Configuração do banco de dados PostgreSQL
 - Criação do Web Service
 - Configuração de variáveis de ambiente
 - Obtenção de credenciais para GitHub Actions
