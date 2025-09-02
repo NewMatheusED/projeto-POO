@@ -28,8 +28,6 @@ services:
         fromDatabase:
           name: postgres-db
           property: password
-      - key: MYSQL_CHARSET
-        value: UTF-8
       - key: SPRING_PROFILES_ACTIVE
         value: render
       - key: SERVER_PORT
