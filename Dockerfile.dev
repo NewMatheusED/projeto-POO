@@ -1,0 +1,31 @@
+# Dockerfile para desenvolvimento com hot reload
+FROM maven:3.9.6-eclipse-temurin-21
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Instalar dependências necessárias
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar arquivos de configuração do Maven
+COPY pom.xml .
+COPY mvnw .
+COPY mvnw.cmd .
+COPY .mvn .mvn
+
+# Baixar dependências
+RUN mvn dependency:go-offline -B
+
+# Copiar código fonte
+COPY src ./src
+
+# Build da aplicação
+RUN mvn clean package -DskipTests
+
+# Expor porta da aplicação
+EXPOSE 8080
+
+# Comando para executar a aplicação em modo desenvolvimento
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments='-Xmx512m'"]

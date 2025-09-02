@@ -101,7 +101,9 @@ Sistema robusto de análise de dados parlamentares que converte automaticamente 
 - MySQL > 8.0 < 8.4
 - Docker (opcional)
 
-### **1. Configuração do Banco de Dados**
+### **1. Execução Local**
+
+#### **Configuração do Banco de Dados**
 ```bash
 # Variáveis de ambiente necessárias
 export MYSQL_HOST=localhost
@@ -112,7 +114,7 @@ export MYSQL_PASSWORD=sua_senha
 export MYSQL_CHARSET=utf8mb4
 ```
 
-### **2. Executar a Aplicação**
+#### **Executar a Aplicação**
 ```bash
 # Clonar o repositório
 git clone <seu-repositorio>
@@ -125,9 +127,77 @@ mvn clean install
 run.bat
 ```
 
-### **3. Testar a API**
+### **2. Execução com Docker**
+
+#### **Desenvolvimento Local**
+```bash
+# Executar com docker-compose (inclui MySQL)
+docker-compose up -d
+
+# Ou apenas para desenvolvimento
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+#### **Build da Imagem Docker**
+```bash
+# Build da imagem
+docker build -t analise-senadores-api:latest .
+
+# Executar container
+docker run -p 8080:8080 \
+  -e MYSQL_HOST=host.docker.internal \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_DATABASE=analise_senadores \
+  -e MYSQL_USER=seu_usuario \
+  -e MYSQL_PASSWORD=sua_senha \
+  analise-senadores-api:latest
+```
+
+### **3. Deploy em Produção - Render**
+
+#### **🎨 Render (Recomendado)**
+O Render é a plataforma escolhida para deploy da aplicação. É gratuito, fácil de usar e oferece integração direta com GitHub.
+
+#### **Configuração Automática via GitHub**
+1. **Conectar repositório no Render.com**
+2. **O arquivo `render.yaml` já está configurado**
+3. **Deploy automático via GitHub Actions**
+
+#### **Deploy Manual via CLI**
+```bash
+# Instalar Render CLI
+npm install -g @render/cli
+
+# Login no Render
+render login
+
+# Deploy manual
+./scripts/deploy-render.sh
+```
+
+#### **Configuração Manual no Render Dashboard**
+1. Acesse [render.com](https://render.com)
+2. Conecte sua conta GitHub
+3. Crie um novo "Web Service"
+4. Selecione seu repositório
+5. Configure as variáveis de ambiente
+6. Deploy automático!
+
+#### **📖 Guia Completo de Configuração**
+Para instruções detalhadas passo a passo, consulte o arquivo **[RENDER_SETUP.md](./RENDER_SETUP.md)** que inclui:
+- Criação de conta e configuração inicial
+- Configuração do banco de dados MySQL
+- Criação do Web Service
+- Configuração de variáveis de ambiente
+- Obtenção de credenciais para GitHub Actions
+- Troubleshooting e solução de problemas
+
+### **5. Testar a API**
 ```bash
 # Health check
+curl http://localhost:8080/actuator/health
+
+# Lista de senadores
 curl http://localhost:8080/api/v1/senado/senadores
 
 # Buscar detalhes de um senador
@@ -221,6 +291,28 @@ if (response.isSuccess()) {
 }
 ```
 
+## 🔄 **CI/CD e Workflow**
+
+### **GitHub Actions**
+O projeto inclui workflows automatizados para:
+
+- **🧪 Testes Automáticos**: Execução de testes em cada PR
+- **🚀 Deploy Automático**: Deploy no Render via push na branch main
+- **📦 Build Otimizado**: Build da aplicação Spring Boot
+
+### **Workflows Disponíveis**
+- `.github/workflows/ci-cd.yml` - Pipeline completo de CI/CD com deploy no Render
+
+### **Secrets Necessários**
+Configure os seguintes secrets no GitHub:
+- `RENDER_SERVICE_ID` - ID do serviço no Render
+- `RENDER_API_KEY` - API key do Render
+
+### **Deploy Automático**
+1. **Push na branch `main`** → Deploy automático no Render
+2. **Push na branch `develop`** → Deploy em ambiente de desenvolvimento
+3. **Pull Request** → Execução de testes automáticos
+
 ## 🚀 **Próximos Passos**
 
 ### **Funcionalidades Planejadas**
@@ -231,7 +323,8 @@ if (response.isSuccess()) {
 ### **Melhorias Técnicas**
 1. **⚡ Cache Redis**: Cache distribuído para melhor performance
 2. **📝 Logs Estruturados**: Sistema de logging avançado
-5. **🧪 Testes**: Cobertura completa de testes
+3. **🧪 Testes**: Cobertura completa de testes
+4. **🔒 Segurança**: Implementação de autenticação e autorização
 
 ### **Padrões de Código**
 - Seguir princípios SOLID
