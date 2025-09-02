@@ -111,7 +111,7 @@ export MYSQL_PORT=3306
 export MYSQL_DATABASE=analise_senadores
 export MYSQL_USER=seu_usuario
 export MYSQL_PASSWORD=sua_senha
-export MYSQL_CHARSET=utf8mb4
+export MYSQL_CHARSET=UTF-8u
 ```
 
 #### **Executar a Aplicação**
