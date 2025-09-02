@@ -31,7 +31,7 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: render
       - key: SERVER_PORT
-        value: 10000
+        value: ${PORT}
       - key: CORS_ALLOWED_ORIGINS
         value: "*"
 

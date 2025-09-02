@@ -35,7 +35,7 @@ services:
       MYSQL_DATABASE: analise_senadores_dev
       MYSQL_USER: root
       MYSQL_PASSWORD: 123456
-      MYSQL_CHARSET: UTF-8
+      MYSQL_CHARSET: utf8
       
       # Configurações da aplicação
       SPRING_PROFILES_ACTIVE: dev
