@@ -29,7 +29,7 @@ services:
           name: postgres-db
           property: password
       - key: SPRING_PROFILES_ACTIVE
-        value: render
+        value: render,production
       - key: SERVER_PORT
         value: ${PORT}
       - key: CORS_ALLOWED_ORIGINS
