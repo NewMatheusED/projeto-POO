@@ -43,7 +43,7 @@ public class DatabaseConfig {
     /**
      * Configura o DataSource principal.
      * 
-     * Se DATABASE_URL estiver definida (ambiente Render), converte de postgresql:// para jdbc:postgresql://
+     * Se DATABASE_URL estiver definida (ambiente Render), faz o parsing correto da URL
      * Caso contrário, usa as variáveis individuais.
      * 
      * @return DataSource configurado
@@ -53,15 +53,23 @@ public class DatabaseConfig {
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
         
-        String jdbcUrl;
         if (databaseUrl != null && !databaseUrl.isEmpty()) {
-            // Converte postgresql:// para jdbc:postgresql://
-            jdbcUrl = databaseUrl.replaceFirst("^postgresql://", "jdbc:postgresql://");
-            config.setJdbcUrl(jdbcUrl);
+            // Parse da URL do Render: postgresql://user:password@host:port/database
+            try {
+                String jdbcUrl = parseDatabaseUrl(databaseUrl);
+                config.setJdbcUrl(jdbcUrl);
+                
+                // Extrai credenciais da URL
+                String[] credentials = extractCredentials(databaseUrl);
+                config.setUsername(credentials[0]);
+                config.setPassword(credentials[1]);
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao fazer parsing da DATABASE_URL: " + databaseUrl, e);
+            }
         } else {
             // Usa variáveis individuais
-            jdbcUrl = String.format("jdbc:postgresql://%s:%s/%s?useSSL=true", 
-                                  dbHost, dbPort, dbName);
+            String jdbcUrl = String.format("jdbc:postgresql://%s:%s/%s?useSSL=true", 
+                                          dbHost, dbPort, dbName);
             config.setJdbcUrl(jdbcUrl);
             config.setUsername(dbUser);
             config.setPassword(dbPassword);
@@ -88,5 +96,59 @@ public class DatabaseConfig {
         config.addDataSourceProperty("maintainTimeStats", "false");
         
         return new HikariDataSource(config);
+    }
+    
+    /**
+     * Faz o parsing da URL do Render para o formato JDBC correto.
+     * 
+     * @param databaseUrl URL no formato: postgresql://user:password@host:port/database
+     * @return URL no formato JDBC: jdbc:postgresql://host:port/database
+     */
+    private String parseDatabaseUrl(String databaseUrl) {
+        // Remove o prefixo postgresql://
+        String urlWithoutPrefix = databaseUrl.replaceFirst("^postgresql://", "");
+        
+        // Encontra o @ que separa credenciais do host
+        int atIndex = urlWithoutPrefix.indexOf('@');
+        if (atIndex == -1) {
+            throw new IllegalArgumentException("URL inválida: não encontrou @ para separar credenciais");
+        }
+        
+        // Pega a parte após o @ (host:port/database)
+        String hostAndDatabase = urlWithoutPrefix.substring(atIndex + 1);
+        
+        // Constrói a URL JDBC
+        return "jdbc:postgresql://" + hostAndDatabase + "?useSSL=true";
+    }
+    
+    /**
+     * Extrai username e password da URL do Render.
+     * 
+     * @param databaseUrl URL no formato: postgresql://user:password@host:port/database
+     * @return Array com [username, password]
+     */
+    private String[] extractCredentials(String databaseUrl) {
+        // Remove o prefixo postgresql://
+        String urlWithoutPrefix = databaseUrl.replaceFirst("^postgresql://", "");
+        
+        // Encontra o @ que separa credenciais do host
+        int atIndex = urlWithoutPrefix.indexOf('@');
+        if (atIndex == -1) {
+            throw new IllegalArgumentException("URL inválida: não encontrou @ para separar credenciais");
+        }
+        
+        // Pega a parte antes do @ (user:password)
+        String credentials = urlWithoutPrefix.substring(0, atIndex);
+        
+        // Encontra o : que separa user de password
+        int colonIndex = credentials.indexOf(':');
+        if (colonIndex == -1) {
+            throw new IllegalArgumentException("URL inválida: não encontrou : para separar user e password");
+        }
+        
+        String username = credentials.substring(0, colonIndex);
+        String password = credentials.substring(colonIndex + 1);
+        
+        return new String[]{username, password};
     }
 }
