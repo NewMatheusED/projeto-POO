@@ -8,23 +8,23 @@ services:
     envVars:
       - key: JAVA_VERSION
         value: 21
-      - key: MYSQL_HOST
+      - key: DB_HOST
         fromDatabase:
           name: postgres-db
           property: host
-      - key: MYSQL_PORT
+      - key: DB_PORT
         fromDatabase:
           name: postgres-db
           property: port
-      - key: MYSQL_DATABASE
+      - key: DB_NAME
         fromDatabase:
           name: postgres-db
           property: database
-      - key: MYSQL_USER
+      - key: DB_USER
         fromDatabase:
           name: postgres-db
           property: user
-      - key: MYSQL_PASSWORD
+      - key: DB_PASSWORD
         fromDatabase:
           name: postgres-db
           property: password
