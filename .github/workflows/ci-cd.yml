@@ -44,8 +44,8 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Executar testes
-      run: mvn clean test
+    - name: Executar testes e build
+      run: mvn clean package
       env:
         MYSQL_HOST: localhost
         MYSQL_PORT: 3306
@@ -53,9 +53,6 @@ jobs:
         MYSQL_USER: test_user
         MYSQL_PASSWORD: test_password
         MYSQL_CHARSET: UTF-8
-
-    - name: Build da aplicação
-      run: mvn clean package -DskipTests
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -70,9 +67,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-    - name: Checkout código
-      uses: actions/checkout@v4
-
     - name: Deploy para Render
       uses: johnbeynon/render-deploy-action@v0.0.8
       with:
