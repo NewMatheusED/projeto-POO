@@ -2,6 +2,9 @@ package com.poo.demo.presentation.controller;
 import com.poo.demo.application.service.ProcessoApiService;
 import com.poo.demo.domain.dto.ProcessoDto;
 import com.poo.demo.domain.entity.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/processo")
 @CrossOrigin(origins = "*")
+@Tag(name = "Processos", description = "Endpoints para consulta de processos legislativos")
 public class ProcessoController {
 
     private final ProcessoApiService processoApiService;
@@ -26,8 +30,14 @@ public class ProcessoController {
      * @param codigo Código do processo
      * @return Array de ProcessoDto com as emendas do processo
      */
+    @Operation(summary = "Buscar Emendas do Processo", description = "Retorna as emendas de um processo legislativo específico")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Emendas do processo retornadas com sucesso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Processo não encontrado")
+    })
     @GetMapping("/{codigo}")
-    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarEmendasProcesso(@PathVariable String codigo) {
+    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarEmendasProcesso(
+            @Parameter(description = "Código do processo", required = true) @PathVariable String codigo) {
         return ResponseEntity.ok(processoApiService.buscarEmendasProcesso(codigo));
     }
 
@@ -36,8 +46,14 @@ public class ProcessoController {
      * @param codigo Código do processo
      * @return JSON válido da resposta (XML convertido para JSON)
      */
+    @Operation(summary = "Buscar Processo (JSON Bruto)", description = "Retorna dados brutos de um processo legislativo em formato JSON")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Dados brutos do processo retornados com sucesso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Processo não encontrado")
+    })
     @GetMapping("/{codigo}/json-bruto")
-    public ResponseEntity<ApiResponse<Object>> buscarProcessoBruto(@PathVariable String codigo) {
+    public ResponseEntity<ApiResponse<Object>> buscarProcessoBruto(
+            @Parameter(description = "Código do processo", required = true) @PathVariable String codigo) {
         return ResponseEntity.ok(processoApiService.buscarProcessoBruto(codigo));
     }
 }
