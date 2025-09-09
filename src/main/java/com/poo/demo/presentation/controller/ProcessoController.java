@@ -1,5 +1,6 @@
 package com.poo.demo.presentation.controller;
 import com.poo.demo.application.service.ProcessoApiService;
+import com.poo.demo.domain.dto.ProcessoDtoDetail;
 import com.poo.demo.domain.dto.ProcessoDto;
 import com.poo.demo.domain.entity.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,7 @@ public class ProcessoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Processo não encontrado")
     })
     @GetMapping("/{codigo}")
-    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarEmendasProcesso(
+    public ResponseEntity<ApiResponse<ProcessoDtoDetail[]>> buscarEmendasProcesso(
             @Parameter(description = "Código do processo", required = true) @PathVariable String codigo) {
         return ResponseEntity.ok(processoApiService.buscarEmendasProcesso(codigo));
     }
@@ -55,5 +56,18 @@ public class ProcessoController {
     public ResponseEntity<ApiResponse<Object>> buscarProcessoBruto(
             @Parameter(description = "Código do processo", required = true) @PathVariable String codigo) {
         return ResponseEntity.ok(processoApiService.buscarProcessoBruto(codigo));
+    }
+
+    /**
+     * Busca todos os processos
+     * @return Array de ProcessoDto com os processos
+     */
+    @Operation(summary = "Buscar Processos", description = "Retorna todos os processos legislativos")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Processos retornados com sucesso")
+    })
+    @GetMapping("/geral")
+    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarProcessosGeral() {
+        return ResponseEntity.ok(processoApiService.buscarProcessosGeral());
     }
 }

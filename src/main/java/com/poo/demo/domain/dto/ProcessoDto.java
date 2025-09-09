@@ -1,245 +1,165 @@
 package com.poo.demo.domain.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+/**
+ * DTO para representar um processo legislativo.
+ * Contém apenas os campos essenciais para identificação e informações básicas do processo.
+ */
 public class ProcessoDto {
     
-    // Classe interna para Decisao
-    public static class Decisao {
-        private String data;
-        private Integer idTipo;
-        private String descricaoTipo;
-        private Integer codigoColegiado;
-        private String casa;
-        private String siglaColegiado;
-        private String nomeColegiado;
-        
-        @JsonProperty("data")
-        public String getData() { return data; }
-        public void setData(String data) { this.data = data; }
-        
-        @JsonProperty("idTipo")
-        public Integer getIdTipo() { return idTipo; }
-        public void setIdTipo(Integer idTipo) { this.idTipo = idTipo; }
-        
-        @JsonProperty("descricaoTipo")
-        public String getDescricaoTipo() { return descricaoTipo; }
-        public void setDescricaoTipo(String descricaoTipo) { this.descricaoTipo = descricaoTipo; }
-        
-        @JsonProperty("codigoColegiado")
-        public Integer getCodigoColegiado() { return codigoColegiado; }
-        public void setCodigoColegiado(Integer codigoColegiado) { this.codigoColegiado = codigoColegiado; }
-        
-        @JsonProperty("casa")
-        public String getCasa() { return casa; }
-        public void setCasa(String casa) { this.casa = casa; }
-        
-        @JsonProperty("siglaColegiado")
-        public String getSiglaColegiado() { return siglaColegiado; }
-        public void setSiglaColegiado(String siglaColegiado) { this.siglaColegiado = siglaColegiado; }
-        
-        @JsonProperty("nomeColegiado")
-        public String getNomeColegiado() { return nomeColegiado; }
-        public void setNomeColegiado(String nomeColegiado) { this.nomeColegiado = nomeColegiado; }
-    }
-    
-    // Classe interna para Subemenda
-    public static class Subemenda {
-        private Integer id;
-        private Integer idDocumentoEmenda;
-        private String urlDocumentoEmenda;
-        private String descricaoDocumentoEmenda;
-        private Integer idCiEmenda;
-        private Integer idCiEmendado;
-        private Integer idProcesso;
-        private String dataApresentacao;
-        private Integer codigoColegiado;
-        private String casa;
-        private String siglaColegiado;
-        private String nomeColegiado;
-        private String autoria;
-        private String numero;
-        private String identificacao;
-        private String tipo;
-        private String turnoApresentacao;
-        private List<Decisao> decisoes;
-        private List<Subemenda> subemendas;
-        
-        @JsonProperty("id")
-        public Integer getId() { return id; }
-        public void setId(Integer id) { this.id = id; }
-        
-        @JsonProperty("idDocumentoEmenda")
-        public Integer getIdDocumentoEmenda() { return idDocumentoEmenda; }
-        public void setIdDocumentoEmenda(Integer idDocumentoEmenda) { this.idDocumentoEmenda = idDocumentoEmenda; }
-        
-        @JsonProperty("urlDocumentoEmenda")
-        public String getUrlDocumentoEmenda() { return urlDocumentoEmenda; }
-        public void setUrlDocumentoEmenda(String urlDocumentoEmenda) { this.urlDocumentoEmenda = urlDocumentoEmenda; }
-        
-        @JsonProperty("descricaoDocumentoEmenda")
-        public String getDescricaoDocumentoEmenda() { return descricaoDocumentoEmenda; }
-        public void setDescricaoDocumentoEmenda(String descricaoDocumentoEmenda) { this.descricaoDocumentoEmenda = descricaoDocumentoEmenda; }
-        
-        @JsonProperty("idCiEmenda")
-        public Integer getIdCiEmenda() { return idCiEmenda; }
-        public void setIdCiEmenda(Integer idCiEmenda) { this.idCiEmenda = idCiEmenda; }
-        
-        @JsonProperty("idCiEmendado")
-        public Integer getIdCiEmendado() { return idCiEmendado; }
-        public void setIdCiEmendado(Integer idCiEmendado) { this.idCiEmendado = idCiEmendado; }
-        
-        @JsonProperty("idProcesso")
-        public Integer getIdProcesso() { return idProcesso; }
-        public void setIdProcesso(Integer idProcesso) { this.idProcesso = idProcesso; }
-        
-        @JsonProperty("dataApresentacao")
-        public String getDataApresentacao() { return dataApresentacao; }
-        public void setDataApresentacao(String dataApresentacao) { this.dataApresentacao = dataApresentacao; }
-        
-        @JsonProperty("codigoColegiado")
-        public Integer getCodigoColegiado() { return codigoColegiado; }
-        public void setCodigoColegiado(Integer codigoColegiado) { this.codigoColegiado = codigoColegiado; }
-        
-        @JsonProperty("casa")
-        public String getCasa() { return casa; }
-        public void setCasa(String casa) { this.casa = casa; }
-        
-        @JsonProperty("siglaColegiado")
-        public String getSiglaColegiado() { return siglaColegiado; }
-        public void setSiglaColegiado(String siglaColegiado) { this.siglaColegiado = siglaColegiado; }
-        
-        @JsonProperty("nomeColegiado")
-        public String getNomeColegiado() { return nomeColegiado; }
-        public void setNomeColegiado(String nomeColegiado) { this.nomeColegiado = nomeColegiado; }
-        
-        @JsonProperty("autoria")
-        public String getAutoria() { return autoria; }
-        public void setAutoria(String autoria) { this.autoria = autoria; }
-        
-        @JsonProperty("numero")
-        public String getNumero() { return numero; }
-        public void setNumero(String numero) { this.numero = numero; }
-        
-        @JsonProperty("identificacao")
-        public String getIdentificacao() { return identificacao; }
-        public void setIdentificacao(String identificacao) { this.identificacao = identificacao; }
-        
-        @JsonProperty("tipo")
-        public String getTipo() { return tipo; }
-        public void setTipo(String tipo) { this.tipo = tipo; }
-        
-        @JsonProperty("turnoApresentacao")
-        public String getTurnoApresentacao() { return turnoApresentacao; }
-        public void setTurnoApresentacao(String turnoApresentacao) { this.turnoApresentacao = turnoApresentacao; }
-        
-        @JsonProperty("decisoes")
-        public List<Decisao> getDecisoes() { return decisoes; }
-        public void setDecisoes(List<Decisao> decisoes) { this.decisoes = decisoes; }
-        
-        @JsonProperty("subemendas")
-        public List<Subemenda> getSubemendas() { return subemendas; }
-        public void setSubemendas(List<Subemenda> subemendas) { this.subemendas = subemendas; }
-    }
-    
-    // Propriedades principais da Emenda
-    private Integer id;
-    private Integer idDocumentoEmenda;
-    private String urlDocumentoEmenda;
-    private String descricaoDocumentoEmenda;
-    private Integer idCiEmenda;
-    private Integer idCiEmendado;
-    private Integer idProcesso;
-    private String dataApresentacao;
-    private Integer codigoColegiado;
-    private String casa;
-    private String siglaColegiado;
-    private String nomeColegiado;
-    private String autoria;
-    private String numero;
-    private String identificacao;
-    private String tipo;
-    private String turnoApresentacao;
-    private List<Decisao> decisoes;
-    private List<Subemenda> subemendas;
-    
-    // Getters e Setters para as propriedades principais
     @JsonProperty("id")
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    private Long id;
     
-    @JsonProperty("idDocumentoEmenda")
-    public Integer getIdDocumentoEmenda() { return idDocumentoEmenda; }
-    public void setIdDocumentoEmenda(Integer idDocumentoEmenda) { this.idDocumentoEmenda = idDocumentoEmenda; }
-    
-    @JsonProperty("urlDocumentoEmenda")
-    public String getUrlDocumentoEmenda() { return urlDocumentoEmenda; }
-    public void setUrlDocumentoEmenda(String urlDocumentoEmenda) { this.urlDocumentoEmenda = urlDocumentoEmenda; }
-    
-    @JsonProperty("descricaoDocumentoEmenda")
-    public String getDescricaoDocumentoEmenda() { return descricaoDocumentoEmenda; }
-    public void setDescricaoDocumentoEmenda(String descricaoDocumentoEmenda) { this.descricaoDocumentoEmenda = descricaoDocumentoEmenda; }
-    
-    @JsonProperty("idCiEmenda")
-    public Integer getIdCiEmenda() { return idCiEmenda; }
-    public void setIdCiEmenda(Integer idCiEmenda) { this.idCiEmenda = idCiEmenda; }
-    
-    @JsonProperty("idCiEmendado")
-    public Integer getIdCiEmendado() { return idCiEmendado; }
-    public void setIdCiEmendado(Integer idCiEmendado) { this.idCiEmendado = idCiEmendado; }
-    
-    @JsonProperty("idProcesso")
-    public Integer getIdProcesso() { return idProcesso; }
-    public void setIdProcesso(Integer idProcesso) { this.idProcesso = idProcesso; }
-    
-    @JsonProperty("dataApresentacao")
-    public String getDataApresentacao() { return dataApresentacao; }
-    public void setDataApresentacao(String dataApresentacao) { this.dataApresentacao = dataApresentacao; }
-    
-    @JsonProperty("codigoColegiado")
-    public Integer getCodigoColegiado() { return codigoColegiado; }
-    public void setCodigoColegiado(Integer codigoColegiado) { this.codigoColegiado = codigoColegiado; }
-    
-    @JsonProperty("casa")
-    public String getCasa() { return casa; }
-    public void setCasa(String casa) { this.casa = casa; }
-    
-    @JsonProperty("siglaColegiado")
-    public String getSiglaColegiado() { return siglaColegiado; }
-    public void setSiglaColegiado(String siglaColegiado) { this.siglaColegiado = siglaColegiado; }
-    
-    @JsonProperty("nomeColegiado")
-    public String getNomeColegiado() { return nomeColegiado; }
-    public void setNomeColegiado(String nomeColegiado) { this.nomeColegiado = nomeColegiado; }
-    
-    @JsonProperty("autoria")
-    public String getAutoria() { return autoria; }
-    public void setAutoria(String autoria) { this.autoria = autoria; }
-    
-    @JsonProperty("numero")
-    public String getNumero() { return numero; }
-    public void setNumero(String numero) { this.numero = numero; }
+    @JsonProperty("codigoMateria")
+    private Integer codigoMateria;
     
     @JsonProperty("identificacao")
-    public String getIdentificacao() { return identificacao; }
-    public void setIdentificacao(String identificacao) { this.identificacao = identificacao; }
+    private String identificacao;
     
-    @JsonProperty("tipo")
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
+    @JsonProperty("objetivo")
+    private String objetivo;
     
-    @JsonProperty("turnoApresentacao")
-    public String getTurnoApresentacao() { return turnoApresentacao; }
-    public void setTurnoApresentacao(String turnoApresentacao) { this.turnoApresentacao = turnoApresentacao; }
+    @JsonProperty("casaIdentificadora")
+    private String casaIdentificadora;
     
-    @JsonProperty("decisoes")
-    public List<Decisao> getDecisoes() { return decisoes; }
-    public void setDecisoes(List<Decisao> decisoes) { this.decisoes = decisoes; }
+    @JsonProperty("enteIdentificador")
+    private String enteIdentificador;
     
-    @JsonProperty("subemendas")
-    public List<Subemenda> getSubemendas() { return subemendas; }
-    public void setSubemendas(List<Subemenda> subemendas) { this.subemendas = subemendas; }
+    @JsonProperty("tipoConteudo")
+    private String tipoConteudo;
+    
+    @JsonProperty("ementa")
+    private String ementa;
+    
+    @JsonProperty("tipoDocumento")
+    private String tipoDocumento;
+    
+    @JsonProperty("dataApresentacao")
+    private String dataApresentacao;
+    
+    @JsonProperty("autoria")
+    private String autoria;
+    
+    @JsonProperty("tramitando")
+    private String tramitando;
+    
+    // Construtor padrão
+    public ProcessoDto() {}
+    
+    // Construtor com todos os campos
+    public ProcessoDto(Long id, Integer codigoMateria, String identificacao, String objetivo,
+                      String casaIdentificadora, String enteIdentificador, String tipoConteudo,
+                      String ementa, String tipoDocumento, String dataApresentacao,
+                      String autoria, String tramitando) {
+        this.id = id;
+        this.codigoMateria = codigoMateria;
+        this.identificacao = identificacao;
+        this.objetivo = objetivo;
+        this.casaIdentificadora = casaIdentificadora;
+        this.enteIdentificador = enteIdentificador;
+        this.tipoConteudo = tipoConteudo;
+        this.ementa = ementa;
+        this.tipoDocumento = tipoDocumento;
+        this.dataApresentacao = dataApresentacao;
+        this.autoria = autoria;
+        this.tramitando = tramitando;
+    }
+    
+    // Getters e Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public Integer getCodigoMateria() {
+        return codigoMateria;
+    }
+    
+    public void setCodigoMateria(Integer codigoMateria) {
+        this.codigoMateria = codigoMateria;
+    }
+    
+    public String getIdentificacao() {
+        return identificacao;
+    }
+    
+    public void setIdentificacao(String identificacao) {
+        this.identificacao = identificacao;
+    }
+    
+    public String getObjetivo() {
+        return objetivo;
+    }
+    
+    public void setObjetivo(String objetivo) {
+        this.objetivo = objetivo;
+    }
+    
+    public String getCasaIdentificadora() {
+        return casaIdentificadora;
+    }
+    
+    public void setCasaIdentificadora(String casaIdentificadora) {
+        this.casaIdentificadora = casaIdentificadora;
+    }
+    
+    public String getEnteIdentificador() {
+        return enteIdentificador;
+    }
+    
+    public void setEnteIdentificador(String enteIdentificador) {
+        this.enteIdentificador = enteIdentificador;
+    }
+    
+    public String getTipoConteudo() {
+        return tipoConteudo;
+    }
+    
+    public void setTipoConteudo(String tipoConteudo) {
+        this.tipoConteudo = tipoConteudo;
+    }
+    
+    public String getEmenta() {
+        return ementa;
+    }
+    
+    public void setEmenta(String ementa) {
+        this.ementa = ementa;
+    }
+    
+    public String getTipoDocumento() {
+        return tipoDocumento;
+    }
+    
+    public void setTipoDocumento(String tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
+    }
+    
+    public String getDataApresentacao() {
+        return dataApresentacao;
+    }
+    
+    public void setDataApresentacao(String dataApresentacao) {
+        this.dataApresentacao = dataApresentacao;
+    }
+    
+    public String getAutoria() {
+        return autoria;
+    }
+    
+    public void setAutoria(String autoria) {
+        this.autoria = autoria;
+    }
+    
+    public String getTramitando() {
+        return tramitando;
+    }
+    
+    public void setTramitando(String tramitando) {
+        this.tramitando = tramitando;
+    }
 }
