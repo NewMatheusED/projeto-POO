@@ -63,8 +63,14 @@ public class SmartHttpClient {
             // Se já for JSON, converte diretamente
             if (formatConverter.isJsonResponse(responseBody)) {
                 if (responseType.isArray()) {
-                    // Para arrays, usa o caminho fornecido ou busca automaticamente
-                    return handleJsonArrayResponse(responseBody, responseType, arrayPath);
+                    // Para arrays, verifica se é um array direto ou objeto com array aninhado
+                    if (responseBody.trim().startsWith("[")) {
+                        // Array JSON direto
+                        return handleDirectJsonArray(responseBody, responseType);
+                    } else {
+                        // Objeto com array aninhado
+                        return handleJsonArrayResponse(responseBody, responseType, arrayPath);
+                    }
                 } else {
                     // Para objetos únicos, usa o caminho fornecido se existir
                     return handleJsonObjectResponse(responseBody, responseType, arrayPath);
@@ -152,6 +158,39 @@ public class SmartHttpClient {
             
         } catch (Exception e) {
             throw new RuntimeException("Erro ao converter XML para JSON: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Trata respostas JSON que são arrays diretos
+     * @param jsonResponse Resposta JSON como string (array direto)
+     * @param responseType Tipo da resposta esperada
+     * @return Array convertido para o tipo esperado
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T handleDirectJsonArray(String jsonResponse, Class<T> responseType) {
+        try {
+            if (!responseType.isArray()) {
+                throw new RuntimeException("Tipo de resposta não é um array: " + responseType);
+            }
+            
+            Class<?> componentType = responseType.getComponentType();
+            
+            // Converte JSON array direto para List
+            List<Object> jsonList = jsonMapper.readValue(jsonResponse, List.class);
+            
+            // Converte cada item para o DTO usando Jackson
+            List<Object> results = new ArrayList<>();
+            for (Object item : jsonList) {
+                Object dto = jsonMapper.convertValue(item, componentType);
+                results.add(dto);
+            }
+            
+            // Converte para array
+            return (T) results.toArray((Object[]) java.lang.reflect.Array.newInstance(componentType, results.size()));
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao converter array JSON direto: " + e.getMessage(), e);
         }
     }
 
@@ -405,7 +444,12 @@ public class SmartHttpClient {
             
             // Se já for JSON, converte para objeto para evitar escape duplo
             if (formatConverter.isJsonResponse(responseBody)) {
-                return jsonMapper.readValue(responseBody, Object.class);
+                // Se for um array direto, mantém como List
+                if (responseBody.trim().startsWith("[")) {
+                    return jsonMapper.readValue(responseBody, List.class);
+                } else {
+                    return jsonMapper.readValue(responseBody, Object.class);
+                }
             }
             
             // Caso não seja nenhum dos formatos conhecidos, retorna como está
