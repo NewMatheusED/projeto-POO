@@ -44,6 +44,9 @@ public class ProcessoDto {
     @JsonProperty("tramitando")
     private String tramitando;
     
+    @JsonProperty("urlDocumento")
+    private String urlDocumento;
+    
     // Construtor padrão
     public ProcessoDto() {}
     
@@ -51,7 +54,7 @@ public class ProcessoDto {
     public ProcessoDto(Long id, Integer codigoMateria, String identificacao, String objetivo,
                       String casaIdentificadora, String enteIdentificador, String tipoConteudo,
                       String ementa, String tipoDocumento, String dataApresentacao,
-                      String autoria, String tramitando) {
+                      String autoria, String tramitando, String urlDocumento) {
         this.id = id;
         this.codigoMateria = codigoMateria;
         this.identificacao = identificacao;
@@ -64,6 +67,7 @@ public class ProcessoDto {
         this.dataApresentacao = dataApresentacao;
         this.autoria = autoria;
         this.tramitando = tramitando;
+        this.urlDocumento = urlDocumento;
     }
     
     // Getters e Setters
@@ -161,5 +165,13 @@ public class ProcessoDto {
     
     public void setTramitando(String tramitando) {
         this.tramitando = tramitando;
+    }
+    
+    public String getUrlDocumento() {
+        return urlDocumento;
+    }
+    
+    public void setUrlDocumento(String urlDocumento) {
+        this.urlDocumento = urlDocumento;
     }
 }
