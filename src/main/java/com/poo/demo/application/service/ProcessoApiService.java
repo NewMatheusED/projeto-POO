@@ -59,7 +59,7 @@ public class ProcessoApiService {
     /**
      * Busca as emendas de um processo específico
      * @param codigo Código do processo
-     * @return Array de ProcessoDto com as emendas do processo
+     * @return Array de ProcessoDtoDetail com as emendas do processo
      */
     public ApiResponse<ProcessoDtoDetail[]> buscarEmendasProcesso(String codigo) {
         try {
