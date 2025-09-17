@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import com.poo.demo.config.JwtSecretProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,9 +17,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(
-        "minha-chave-secreta-para-jwt-1234567890123456".getBytes()
-    );
+    private final JwtSecretProvider jwtSecretProvider;
+
+    public JwtAuthenticationFilter(JwtSecretProvider jwtSecretProvider) {
+        this.jwtSecretProvider = jwtSecretProvider;
+    }
     
     /**
      * Executa a validação do token JWT presente no header Authorization.
@@ -41,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.replace("Bearer ", "");
             try {
                 var claims = Jwts.parser()
-                    .setSigningKey(SECRET_KEY)
+                    .setSigningKey(jwtSecretProvider.getSecretKey())
                     .parseClaimsJws(token)
                     .getBody();
 
@@ -58,5 +60,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-        }
+    }
 }

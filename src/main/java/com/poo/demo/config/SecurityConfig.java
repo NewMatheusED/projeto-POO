@@ -4,6 +4,7 @@ package com.poo.demo.config;
  * Configuração de segurança da aplicação.
  * Define as regras de autenticação, autorização e filtros para endpoints protegidos.
  */
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +13,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 public class SecurityConfig {
+
+    private final JwtSecretProvider jwtSecretProvider;
+
+    @Autowired
+    public SecurityConfig(JwtSecretProvider jwtSecretProvider) {
+        this.jwtSecretProvider = jwtSecretProvider;
+    }
 
     /**
      * Configura o filtro de segurança do Spring Security.
@@ -29,7 +37,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/login").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthenticationFilter(jwtSecretProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

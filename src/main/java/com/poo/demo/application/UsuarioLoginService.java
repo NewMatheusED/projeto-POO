@@ -7,29 +7,30 @@ package com.poo.demo.application;
 import java.util.Date;
 import java.util.Optional;
 
-import javax.crypto.SecretKey;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.poo.demo.config.JwtSecretProvider;
 import com.poo.demo.domain.dto.UsuarioCadastroDto;
-import com.poo.demo.domain.entity.UsuarioLogin;
 import com.poo.demo.domain.entity.ApiResponse;
+import com.poo.demo.domain.entity.UsuarioLogin;
 import com.poo.demo.domain.repository.UsuarioLoginRepository;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 
 @Service
 public class UsuarioLoginService {
 
-    @Autowired
-    private UsuarioLoginRepository usuarioLoginRepository;
 
-    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(
-        "minha-chave-secreta-para-jwt-1234567890123456".getBytes()
-    );
+    private final UsuarioLoginRepository usuarioLoginRepository;
+    private final JwtSecretProvider jwtSecretProvider;
+
+    @Autowired
+    public UsuarioLoginService(UsuarioLoginRepository usuarioLoginRepository, JwtSecretProvider jwtSecretProvider) {
+        this.usuarioLoginRepository = usuarioLoginRepository;
+        this.jwtSecretProvider = jwtSecretProvider;
+    }
 
     /**
      * Realiza o cadastro de um novo usuário.
@@ -88,7 +89,7 @@ public class UsuarioLoginService {
             .claim("username", usuario.getUsername())
             .setIssuedAt(new Date())
             .setExpiration(new Date(expirationTime))
-            .signWith(SECRET_KEY)
+            .signWith(jwtSecretProvider.getSecretKey())
             .compact();
     }
 }
