@@ -10,6 +10,8 @@ class DemoApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// Teste básico para verificar se o contexto Spring carrega corretamente
+		// As configurações de teste estão no application-test.properties
 	}
 
 }
