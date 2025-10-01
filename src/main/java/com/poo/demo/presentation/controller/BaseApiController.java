@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
  * Implementa padrões comuns e elimina duplicação de código entre controllers.
  */
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/v1")
 public abstract class BaseApiController {
     
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
