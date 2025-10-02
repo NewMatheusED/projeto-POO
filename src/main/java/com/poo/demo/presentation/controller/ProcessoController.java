@@ -42,6 +42,16 @@ public class ProcessoController extends BaseApiController {
             createNotFoundResponse(response.getMessage());
     }
 
+    @Operation(summary = "Buscar Emendas do Processo Geral", description = "Retorna as emendas de todos os processos legislativos")
+    @GetMapping("/geral")
+    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarEmendasProcessoGeral() {
+        logRequest("/processo/geral", "GET");
+        ApiResponse<ProcessoDto[]> response = processoApiService.buscarEmendasProcessoGeral();
+        return response.isSuccess() ? 
+            createSuccessResponse(response.getData()) : 
+            createNotFoundResponse(response.getMessage());
+    }
+
     /**
      * Busca o JSON bruto de um processo específico.
      * Utiliza métodos da classe abstrata para padronização.

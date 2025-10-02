@@ -33,6 +33,11 @@ public class ProcessoApiService extends AbstractApiService {
         return executeApiCall(endpoint, ProcessoDto[].class, null, "buscar emendas do processo");
     }
 
+    public ApiResponse<ProcessoDto[]> buscarEmendasProcessoGeral() {
+        String endpoint = "/processo/emenda";
+        return executeApiCall(endpoint, ProcessoDto[].class, null, "buscar emendas do processo");
+    }
+
     /**
      * Busca o JSON bruto de um processo específico.
      * Utiliza o método da classe abstrata para eliminar duplicação.
