@@ -2,6 +2,7 @@ package com.poo.demo.application.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poo.demo.domain.dto.ProcessoDto;
+import com.poo.demo.domain.dto.ProcessoDtoDetail;
 import com.poo.demo.domain.entity.ApiResponse;
 import com.poo.demo.infrastructure.client.SmartHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class ProcessoApiService extends AbstractApiService {
      * Busca as emendas de um processo específico.
      * Utiliza o método da classe abstrata para eliminar duplicação.
      * @param codigo Código do processo
-     * @return Array de ProcessoDto com as emendas do processo
+     * @return Array de ProcessoDtoDetail com as emendas do processo
      */
     public ApiResponse<ProcessoDto[]> buscarEmendasProcesso(String codigo) {
         validateParameter(codigo, "código do processo");

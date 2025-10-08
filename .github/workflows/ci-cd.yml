@@ -10,22 +10,6 @@ jobs:
   # Job de teste e build
   test-and-build:
     runs-on: ubuntu-latest
-    
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ROOT_PASSWORD: 123456
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: test_user
-          MYSQL_PASSWORD: test_password
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
 
     steps:
     - name: Checkout código
@@ -46,13 +30,6 @@ jobs:
 
     - name: Executar testes e build
       run: mvn clean package
-      env:
-        MYSQL_HOST: localhost
-        MYSQL_PORT: 3306
-        MYSQL_DATABASE: test_db
-        MYSQL_USER: test_user
-        MYSQL_PASSWORD: test_password
-        MYSQL_CHARSET: UTF-8
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

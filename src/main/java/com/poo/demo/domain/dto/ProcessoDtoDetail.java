@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * DTO para representar um processo legislativo.
  * Contém apenas os campos essenciais para identificação e informações básicas do processo.
  */
-public class ProcessoDto {
+public class ProcessoDtoDetail {
     
     @JsonProperty("id")
     private Long id;
@@ -44,17 +44,24 @@ public class ProcessoDto {
     @JsonProperty("tramitando")
     private String tramitando;
     
+    @JsonProperty("ultimaInformacaoAtualizada")
+    private String ultimaInformacaoAtualizada;
+    
+    @JsonProperty("dataUltimaAtualizacao")
+    private String dataUltimaAtualizacao;
+    
     @JsonProperty("urlDocumento")
     private String urlDocumento;
     
     // Construtor padrão
-    public ProcessoDto() {}
+    public ProcessoDtoDetail() {}
     
     // Construtor com todos os campos
-    public ProcessoDto(Long id, Integer codigoMateria, String identificacao, String objetivo,
+    public ProcessoDtoDetail(Long id, Integer codigoMateria, String identificacao, String objetivo,
                       String casaIdentificadora, String enteIdentificador, String tipoConteudo,
                       String ementa, String tipoDocumento, String dataApresentacao,
-                      String autoria, String tramitando, String urlDocumento) {
+                      String autoria, String tramitando, String ultimaInformacaoAtualizada,
+                      String dataUltimaAtualizacao, String urlDocumento) {
         this.id = id;
         this.codigoMateria = codigoMateria;
         this.identificacao = identificacao;
@@ -67,6 +74,8 @@ public class ProcessoDto {
         this.dataApresentacao = dataApresentacao;
         this.autoria = autoria;
         this.tramitando = tramitando;
+        this.ultimaInformacaoAtualizada = ultimaInformacaoAtualizada;
+        this.dataUltimaAtualizacao = dataUltimaAtualizacao;
         this.urlDocumento = urlDocumento;
     }
     
@@ -165,6 +174,22 @@ public class ProcessoDto {
     
     public void setTramitando(String tramitando) {
         this.tramitando = tramitando;
+    }
+    
+    public String getUltimaInformacaoAtualizada() {
+        return ultimaInformacaoAtualizada;
+    }
+    
+    public void setUltimaInformacaoAtualizada(String ultimaInformacaoAtualizada) {
+        this.ultimaInformacaoAtualizada = ultimaInformacaoAtualizada;
+    }
+    
+    public String getDataUltimaAtualizacao() {
+        return dataUltimaAtualizacao;
+    }
+    
+    public void setDataUltimaAtualizacao(String dataUltimaAtualizacao) {
+        this.dataUltimaAtualizacao = dataUltimaAtualizacao;
     }
     
     public String getUrlDocumento() {
