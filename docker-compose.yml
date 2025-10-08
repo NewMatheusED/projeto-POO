@@ -1,28 +1,6 @@
 version: '3.8'
 
 services:
-  # Banco de dados MySQL
-  mysql:
-    image: mysql:8.4
-    container_name: mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: analise_senadores
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 123456
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./src/main/resources/db/migration:/docker-entrypoint-initdb.d
-    networks:
-      - demo-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
   # Aplicação Spring Boot
   app:
     build:
@@ -31,14 +9,6 @@ services:
     container_name: app
     restart: unless-stopped
     environment:
-      # Configurações do banco de dados
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: analise_senadores
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 123456
-      MYSQL_CHARSET: utf8
-      
       # Configurações da aplicação
       SPRING_PROFILES_ACTIVE: docker
       SERVER_PORT: 8080
@@ -47,9 +17,6 @@ services:
       JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
     ports:
       - "8080:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
     networks:
       - demo-network
     healthcheck:
@@ -73,10 +40,6 @@ services:
       - app
     networks:
       - demo-network
-
-volumes:
-  mysql_data:
-    driver: local
 
 networks:
   demo-network:
