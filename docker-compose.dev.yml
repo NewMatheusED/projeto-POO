@@ -1,26 +1,4 @@
 services:
-  # Banco de dados MySQL para desenvolvimento
-  mysql-dev:
-    image: mysql:8.4
-    container_name: mysql-dev
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: analise_senadores_dev
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 123456
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_dev_data:/var/lib/mysql
-      - ./src/main/resources/db/migration:/docker-entrypoint-initdb.d
-    networks:
-      - demo-dev-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
   # Aplicação Spring Boot para desenvolvimento
   app-dev:
     build:
@@ -29,14 +7,6 @@ services:
     container_name: app-dev
     restart: unless-stopped
     environment:
-      # Configurações do banco de dados
-      MYSQL_HOST: mysql-dev
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: analise_senadores_dev
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 123456
-      MYSQL_CHARSET: utf8
-      
       # Configurações da aplicação
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8080
@@ -49,9 +19,6 @@ services:
     volumes:
       - ./src:/app/src:ro
       - ./target:/app/target
-    depends_on:
-      mysql-dev:
-        condition: service_healthy
     networks:
       - demo-dev-network
     healthcheck:
@@ -60,10 +27,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-volumes:
-  mysql_dev_data:
-    driver: local
 
 networks:
   demo-dev-network:
