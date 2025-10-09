@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * Serviço de aplicação para consumir APIs externas
- * Segue o princípio de responsabilidade única (SRP)
  */
 @Service
 public class ExternalApiService {

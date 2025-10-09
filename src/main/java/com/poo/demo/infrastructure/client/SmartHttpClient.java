@@ -207,11 +207,28 @@ public class SmartHttpClient {
             if (!responseType.isArray()) {
                 throw new RuntimeException("Tipo de resposta não é um array: " + responseType);
             }
+
+            if (jsonResponse.trim().startsWith("[")) {
+                Class<?> componentType = responseType.getComponentType();
+                List<Object> arrayData = jsonMapper.readValue(jsonResponse, List.class);
+
+                List<Object> results = new ArrayList<>();
+                for (Object item : arrayData) {
+                    Object dto = jsonMapper.convertValue(item, componentType);
+                    results.add(dto);
+                }
+                
+                return (T) results.toArray((Object[]) java.lang.reflect.Array.newInstance(componentType, results.size()));
+            }
             
             Class<?> componentType = responseType.getComponentType();
             
             // Converte JSON para Map para extrair o array aninhado
             Map<String, Object> jsonMap = jsonMapper.readValue(jsonResponse, Map.class);
+
+            if (jsonMap.isEmpty()) {
+                return jsonMapper.readValue(jsonResponse, responseType);
+            }
             
             // Extrai array usando o caminho fornecido
             List<Object> arrayData = extractArrayFromJsonMap(jsonMap, arrayPath);
