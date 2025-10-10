@@ -1,0 +1,31 @@
+services:
+  # Aplicação Spring Boot para produção
+  api:
+    image: ${REGISTRY}/${IMAGE_NAME}:${TAG}
+    container_name: api
+    restart: unless-stopped
+    command: ["java", "${JAVA_OPTS}", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar"]
+    environment:
+      # Configurações da aplicação
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SERVER_PORT: ${API_PORT}
+      JAVA_OPTS: ${JAVA_OPTS}
+      
+      # Timezone
+      TZ: America/Sao_Paulo
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent --show-error http://localhost:${API_PORT}/api/v1/health > /dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'

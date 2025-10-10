@@ -1,73 +1,98 @@
 package com.poo.demo.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 /**
- * DTO para representar um processo legislativo.
- * Contém apenas os campos essenciais para identificação e informações básicas do processo.
+ * DTO para representar um processo legislativo com emendas e subemendas.
+ * Contém todos os campos da nova estrutura da API do Senado.
  */
 public class ProcessoDto {
     
     @JsonProperty("id")
     private Long id;
+
+    @JsonProperty("idDocumentoEmenda")
+    private Long idDocumentoEmenda;
     
-    @JsonProperty("codigoMateria")
-    private Integer codigoMateria;
+    @JsonProperty("urlDocumentoEmenda")
+    private String urlDocumentoEmenda;
     
-    @JsonProperty("identificacao")
-    private String identificacao;
+    @JsonProperty("descricaoDocumentoEmenda")
+    private String descricaoDocumentoEmenda;
     
-    @JsonProperty("objetivo")
-    private String objetivo;
+    @JsonProperty("idCiEmenda")
+    private Long idCiEmenda;
     
-    @JsonProperty("casaIdentificadora")
-    private String casaIdentificadora;
+    @JsonProperty("idCiEmendado")
+    private Long idCiEmendado;
     
-    @JsonProperty("enteIdentificador")
-    private String enteIdentificador;
-    
-    @JsonProperty("tipoConteudo")
-    private String tipoConteudo;
-    
-    @JsonProperty("ementa")
-    private String ementa;
-    
-    @JsonProperty("tipoDocumento")
-    private String tipoDocumento;
+    @JsonProperty("idProcesso")
+    private Long idProcesso;
     
     @JsonProperty("dataApresentacao")
     private String dataApresentacao;
     
+    @JsonProperty("codigoColegiado")
+    private Integer codigoColegiado;
+    
+    @JsonProperty("casa")
+    private String casa;
+    
+    @JsonProperty("siglaColegiado")
+    private String siglaColegiado;
+    
+    @JsonProperty("nomeColegiado")
+    private String nomeColegiado;
+    
     @JsonProperty("autoria")
     private String autoria;
     
-    @JsonProperty("tramitando")
-    private String tramitando;
+    @JsonProperty("numero")
+    private String numero;
     
-    @JsonProperty("urlDocumento")
-    private String urlDocumento;
+    @JsonProperty("identificacao")
+    private String identificacao;
+    
+    @JsonProperty("tipo")
+    private String tipo;
+    
+    @JsonProperty("turnoApresentacao")
+    private String turnoApresentacao;
+    
+    @JsonProperty("decisoes")
+    private List<DecisaoDto> decisoes;
+    
+    @JsonProperty("subemendas")
+    private List<ProcessoDto> subemendas;
     
     // Construtor padrão
     public ProcessoDto() {}
     
-    // Construtor com todos os campos
-    public ProcessoDto(Long id, Integer codigoMateria, String identificacao, String objetivo,
-                      String casaIdentificadora, String enteIdentificador, String tipoConteudo,
-                      String ementa, String tipoDocumento, String dataApresentacao,
-                      String autoria, String tramitando, String urlDocumento) {
+    // Construtor com campos principais
+    public ProcessoDto(Long id, Long idDocumentoEmenda, String urlDocumentoEmenda, 
+                      String descricaoDocumentoEmenda, Long idCiEmenda, Long idCiEmendado,
+                      Long idProcesso, String dataApresentacao, Integer codigoColegiado,
+                      String casa, String siglaColegiado, String nomeColegiado,
+                      String autoria, String numero, String identificacao, String tipo,
+                      String turnoApresentacao) {
         this.id = id;
-        this.codigoMateria = codigoMateria;
-        this.identificacao = identificacao;
-        this.objetivo = objetivo;
-        this.casaIdentificadora = casaIdentificadora;
-        this.enteIdentificador = enteIdentificador;
-        this.tipoConteudo = tipoConteudo;
-        this.ementa = ementa;
-        this.tipoDocumento = tipoDocumento;
+        this.idDocumentoEmenda = idDocumentoEmenda;
+        this.urlDocumentoEmenda = urlDocumentoEmenda;
+        this.descricaoDocumentoEmenda = descricaoDocumentoEmenda;
+        this.idCiEmenda = idCiEmenda;
+        this.idCiEmendado = idCiEmendado;
+        this.idProcesso = idProcesso;
         this.dataApresentacao = dataApresentacao;
+        this.codigoColegiado = codigoColegiado;
+        this.casa = casa;
+        this.siglaColegiado = siglaColegiado;
+        this.nomeColegiado = nomeColegiado;
         this.autoria = autoria;
-        this.tramitando = tramitando;
-        this.urlDocumento = urlDocumento;
+        this.numero = numero;
+        this.identificacao = identificacao;
+        this.tipo = tipo;
+        this.turnoApresentacao = turnoApresentacao;
     }
     
     // Getters e Setters
@@ -79,68 +104,52 @@ public class ProcessoDto {
         this.id = id;
     }
     
-    public Integer getCodigoMateria() {
-        return codigoMateria;
+    public Long getIdDocumentoEmenda() {
+        return idDocumentoEmenda;
     }
     
-    public void setCodigoMateria(Integer codigoMateria) {
-        this.codigoMateria = codigoMateria;
+    public void setIdDocumentoEmenda(Long idDocumentoEmenda) {
+        this.idDocumentoEmenda = idDocumentoEmenda;
     }
     
-    public String getIdentificacao() {
-        return identificacao;
+    public String getUrlDocumentoEmenda() {
+        return urlDocumentoEmenda;
     }
     
-    public void setIdentificacao(String identificacao) {
-        this.identificacao = identificacao;
+    public void setUrlDocumentoEmenda(String urlDocumentoEmenda) {
+        this.urlDocumentoEmenda = urlDocumentoEmenda;
     }
     
-    public String getObjetivo() {
-        return objetivo;
+    public String getDescricaoDocumentoEmenda() {
+        return descricaoDocumentoEmenda;
     }
     
-    public void setObjetivo(String objetivo) {
-        this.objetivo = objetivo;
+    public void setDescricaoDocumentoEmenda(String descricaoDocumentoEmenda) {
+        this.descricaoDocumentoEmenda = descricaoDocumentoEmenda;
     }
     
-    public String getCasaIdentificadora() {
-        return casaIdentificadora;
+    public Long getIdCiEmenda() {
+        return idCiEmenda;
     }
     
-    public void setCasaIdentificadora(String casaIdentificadora) {
-        this.casaIdentificadora = casaIdentificadora;
+    public void setIdCiEmenda(Long idCiEmenda) {
+        this.idCiEmenda = idCiEmenda;
     }
     
-    public String getEnteIdentificador() {
-        return enteIdentificador;
+    public Long getIdCiEmendado() {
+        return idCiEmendado;
     }
     
-    public void setEnteIdentificador(String enteIdentificador) {
-        this.enteIdentificador = enteIdentificador;
+    public void setIdCiEmendado(Long idCiEmendado) {
+        this.idCiEmendado = idCiEmendado;
     }
     
-    public String getTipoConteudo() {
-        return tipoConteudo;
+    public Long getIdProcesso() {
+        return idProcesso;
     }
     
-    public void setTipoConteudo(String tipoConteudo) {
-        this.tipoConteudo = tipoConteudo;
-    }
-    
-    public String getEmenta() {
-        return ementa;
-    }
-    
-    public void setEmenta(String ementa) {
-        this.ementa = ementa;
-    }
-    
-    public String getTipoDocumento() {
-        return tipoDocumento;
-    }
-    
-    public void setTipoDocumento(String tipoDocumento) {
-        this.tipoDocumento = tipoDocumento;
+    public void setIdProcesso(Long idProcesso) {
+        this.idProcesso = idProcesso;
     }
     
     public String getDataApresentacao() {
@@ -151,6 +160,38 @@ public class ProcessoDto {
         this.dataApresentacao = dataApresentacao;
     }
     
+    public Integer getCodigoColegiado() {
+        return codigoColegiado;
+    }
+    
+    public void setCodigoColegiado(Integer codigoColegiado) {
+        this.codigoColegiado = codigoColegiado;
+    }
+    
+    public String getCasa() {
+        return casa;
+    }
+    
+    public void setCasa(String casa) {
+        this.casa = casa;
+    }
+    
+    public String getSiglaColegiado() {
+        return siglaColegiado;
+    }
+    
+    public void setSiglaColegiado(String siglaColegiado) {
+        this.siglaColegiado = siglaColegiado;
+    }
+    
+    public String getNomeColegiado() {
+        return nomeColegiado;
+    }
+    
+    public void setNomeColegiado(String nomeColegiado) {
+        this.nomeColegiado = nomeColegiado;
+    }
+    
     public String getAutoria() {
         return autoria;
     }
@@ -159,19 +200,51 @@ public class ProcessoDto {
         this.autoria = autoria;
     }
     
-    public String getTramitando() {
-        return tramitando;
+    public String getNumero() {
+        return numero;
     }
     
-    public void setTramitando(String tramitando) {
-        this.tramitando = tramitando;
+    public void setNumero(String numero) {
+        this.numero = numero;
     }
     
-    public String getUrlDocumento() {
-        return urlDocumento;
+    public String getIdentificacao() {
+        return identificacao;
     }
     
-    public void setUrlDocumento(String urlDocumento) {
-        this.urlDocumento = urlDocumento;
+    public void setIdentificacao(String identificacao) {
+        this.identificacao = identificacao;
+    }
+    
+    public String getTipo() {
+        return tipo;
+    }
+    
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+    
+    public String getTurnoApresentacao() {
+        return turnoApresentacao;
+    }
+    
+    public void setTurnoApresentacao(String turnoApresentacao) {
+        this.turnoApresentacao = turnoApresentacao;
+    }
+    
+    public List<DecisaoDto> getDecisoes() {
+        return decisoes;
+    }
+    
+    public void setDecisoes(List<DecisaoDto> decisoes) {
+        this.decisoes = decisoes;
+    }
+    
+    public List<ProcessoDto> getSubemendas() {
+        return subemendas;
+    }
+    
+    public void setSubemendas(List<ProcessoDto> subemendas) {
+        this.subemendas = subemendas;
     }
 }

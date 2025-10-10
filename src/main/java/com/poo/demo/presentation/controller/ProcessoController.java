@@ -1,6 +1,5 @@
 package com.poo.demo.presentation.controller;
 import com.poo.demo.application.service.ProcessoApiService;
-import com.poo.demo.domain.dto.ProcessoDtoDetail;
 import com.poo.demo.domain.dto.ProcessoDto;
 import com.poo.demo.domain.entity.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +33,7 @@ public class ProcessoController extends BaseApiController {
      */
     @Operation(summary = "Buscar Emendas do Processo", description = "Retorna as emendas de um processo legislativo específico")
     @GetMapping("/{codigo}")
-    public ResponseEntity<ApiResponse<ProcessoDtoDetail[]>> buscarEmendasProcesso(
+    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarEmendasProcesso(
             @Parameter(description = "Código do processo", required = true) @PathVariable String codigo) {
         logRequest("/processo/" + codigo, "GET", "codigo=" + codigo);
         ApiResponse<ProcessoDto[]> response = processoApiService.buscarEmendasProcesso(codigo);
@@ -43,11 +42,21 @@ public class ProcessoController extends BaseApiController {
             createNotFoundResponse(response.getMessage());
     }
 
-    @Operation(summary = "Buscar Emendas do Processo Geral", description = "Retorna as emendas de todos os processos legislativos")
-    @GetMapping("/geral")
-    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarEmendasProcessoGeral() {
-        logRequest("/processo/geral", "GET");
-        ApiResponse<ProcessoDto[]> response = processoApiService.buscarEmendasProcessoGeral();
+    /**
+     * Busca todos os processos legislativos com filtro opcional por identificação.
+     * @param filtro Filtro para buscar na identificação (opcional)
+     * @return Array de ProcessoDto com os processos legislativos filtrados
+     */
+    @Operation(summary = "Buscar Emendas do Processo Geral", description = "Retorna as emendas de todos os processos legislativos com filtro opcional por identificação")
+    @GetMapping("/emendas/geral")
+    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarProcessosGeral(
+            @Parameter(description = "Filtro para buscar na identificação (ex: PLP, PL, PEC)", required = false) 
+            @RequestParam(value = "filtro", required = false) String filtro) {
+        
+        String endpoint = "/processo/emendas/geral" + (filtro != null ? "?filtro=" + filtro : "");
+        logRequest(endpoint, "GET", filtro != null ? "filtro=" + filtro : null);
+        
+        ApiResponse<ProcessoDto[]> response = processoApiService.buscarProcessosGeral(filtro);
         return response.isSuccess() ? 
             createSuccessResponse(response.getData()) : 
             createNotFoundResponse(response.getMessage());
@@ -86,18 +95,5 @@ public class ProcessoController extends BaseApiController {
     @Override
     public String getApiVersion() {
         return "v1.0";
-    }
-
-    /**
-     * Busca todos os processos
-     * @return Array de ProcessoDto com os processos
-     */
-    @Operation(summary = "Buscar Processos", description = "Retorna todos os processos legislativos")
-    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Processos retornados com sucesso")
-    })
-    @GetMapping("/geral")
-    public ResponseEntity<ApiResponse<ProcessoDto[]>> buscarProcessosGeral() {
-        return ResponseEntity.ok(processoApiService.buscarProcessosGeral());
     }
 }

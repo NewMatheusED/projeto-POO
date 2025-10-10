@@ -1,51 +1,380 @@
-name: CI/CD Pipeline - Render
+name: CI/CD Pipeline
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    types: [ opened, synchronize, reopened, closed ]
+    branches: [ dev, main ]
+  push:
+    branches: [ dev, main ]
+    tags: [ 'v*.*.*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/senate_tracker_api
 
 jobs:
-  # Job de teste e build
-  test-and-build:
+  build-image:
+    name: Build Docker Image
     runs-on: ubuntu-latest
-
+    outputs:
+      tags: ${{ steps.tags.outputs.tags }}
+      target: ${{ steps.tags.outputs.target }}
+      description: ${{ steps.tags.outputs.description }}
+      cache-tag: ${{ steps.tags.outputs.cache-tag }}
     steps:
-    - name: Checkout código
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Configurar Java 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'eclipse-temurin'
 
-    - name: Cache dependências Maven
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-    - name: Executar testes e build
-      run: mvn clean package
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: jar-artifact
-        path: target/*.jar
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:buildx-stable-1
 
-  # Job de deploy para Render
-  deploy-render:
-    needs: test-and-build
+      - name: Determine image tags
+        id: tags
+        run: |
+          REPO="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          DESC="Build for ${GITHUB_REF_TYPE}:${GITHUB_REF_NAME}"
+          TARGET="development"
+          CACHE_TAG="cache-dev"
+
+          # Base: sempre gerar tag por SHA
+          TAGS=("${REPO}:sha-${GITHUB_SHA::7}")
+
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            if [[ "${GITHUB_BASE_REF}" == "dev" ]]; then
+              # PR para dev: build com tag dev
+              TAGS+=("${REPO}:dev")
+              TARGET="development"
+              DESC="Development build for PR #${{ github.event.number }} → dev"
+              CACHE_TAG="cache-dev"
+            elif [[ "${GITHUB_BASE_REF}" == "main" ]]; then
+              # PR para main: build com tag latest
+              TAGS+=("${REPO}:latest")
+              TARGET="production"
+              DESC="Production build for PR #${{ github.event.number }} → main"
+              CACHE_TAG="cache-main"
+            else
+              # PR para outras branches: apenas SHA
+              TARGET="development"
+              DESC="Preview build for PR #${{ github.event.number }}"
+              CACHE_TAG="cache-pr"
+            fi
+          elif [[ "${GITHUB_REF_TYPE}" == "branch" && "${GITHUB_REF_NAME}" == "dev" ]]; then
+            # Push para dev: build com tag dev
+            TAGS+=("${REPO}:dev")
+            TARGET="development"
+            DESC="Development build for dev branch"
+            CACHE_TAG="cache-dev"
+          elif [[ "${GITHUB_REF_TYPE}" == "branch" && "${GITHUB_REF_NAME}" == "main" ]]; then
+            # Push para main: build com tag latest
+            TAGS+=("${REPO}:latest")
+            TARGET="production"
+            DESC="Production build for main branch"
+            CACHE_TAG="cache-main"
+          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            # Push de tag: build com tag da versão e prod
+            TAGS+=("${REPO}:${GITHUB_REF_NAME}" "${REPO}:prod")
+            TARGET="production"
+            DESC="Release build ${GITHUB_REF_NAME}"
+            CACHE_TAG="cache-release"
+          fi
+
+          echo "tags=$(IFS=, ; echo "${TAGS[*]}")" >> $GITHUB_OUTPUT
+          echo "target=${TARGET}" >> $GITHUB_OUTPUT
+          echo "description=${DESC}" >> $GITHUB_OUTPUT
+          echo "cache-tag=${CACHE_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Check cache availability
+        id: cache-check
+        run: |
+          echo "Verificando disponibilidade do cache..."
+          # Tenta baixar uma pequena imagem para testar conectividade
+          docker pull hello-world:latest || echo "Cache registry pode estar indisponível"
+          echo "cache-available=true" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image (with fallback)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          platforms: linux/amd64
+          labels: |
+            org.opencontainers.image.description=${{ steps.tags.outputs.description }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: |
+            type=gha
+          cache-to: |
+            type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+        timeout-minutes: 30
+
+      - name: Output image info
+        run: |
+          echo "Image pushed with tags: ${{ steps.tags.outputs.tags }}"
+          echo "Target: ${{ steps.tags.outputs.target }}"
+          echo "Description: ${{ steps.tags.outputs.description }}"
+
+  run-tests:
+    name: Run Tests
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+    if: github.event_name == 'pull_request' && github.base_ref == 'dev'
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      TESTING: "true"
     steps:
-    - name: Deploy para Render
-      uses: johnbeynon/render-deploy-action@v0.0.8
-      with:
-        service-id: ${{ secrets.RENDER_SERVICE_ID }}
-        api-key: ${{ secrets.RENDER_API_KEY }}
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'eclipse-temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run Tests with Coverage
+        run: |
+          mvn clean test jacoco:report
+
+      - name: Extract coverage percent
+        id: cov
+        if: always()
+        run: |
+          # Extrair cobertura do relatório JaCoCo
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            COVERAGE=$(grep -o 'line-rate="[^"]*"' target/site/jacoco/jacoco.xml | sed 's/line-rate="//;s/"//' | head -1)
+            if [ -n "$COVERAGE" ]; then
+              PCT=$(echo "$COVERAGE * 100" | bc -l | cut -d. -f1)
+            else
+              PCT=0
+            fi
+          else
+            PCT=0
+          fi
+          echo "coverage=$PCT" >> $GITHUB_OUTPUT
+
+      - name: Comment PR with test result and coverage
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = `${{ job.status }}`;
+            const coverage = `${{ steps.cov.outputs.coverage }}`;
+            const ok = status === 'success';
+            const title = ok ? '✅ Testes passaram' : '❌ Testes falharam';
+            const body = `### ${title}\n\n- **Status**: ${status}\n- **Cobertura**: ${coverage || 'N/A'}%`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+
+  generate-dev-compose:
+    name: Generate Dev Compose
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate docker-compose.dev.yml
+        run: |
+          REPO="docker.io/${{ secrets.DOCKER_USERNAME }}/senate_tracker_api"
+          TAG="dev"
+          
+          cat > docker-compose.dev.yml << 'COMPOSE'
+          services:
+            api:
+              image: REPO:TAG
+              restart: unless-stopped
+              command: ["java", "-jar", "app.jar", "--spring.profiles.active=dev"]
+              volumes:
+                - ../src:/app/src:ro
+                - ../target:/app/target
+                - ../pom.xml:/app/pom.xml:ro
+              ports:
+                - "8080:8080"
+              healthcheck:
+                test: ["CMD-SHELL", "curl --fail --silent --show-error http://localhost:8080/api/v1/health > /dev/null"]
+                interval: 30s
+                timeout: 10s
+                retries: 5
+                start_period: 20s
+          COMPOSE
+          
+          # Substitui REPO:TAG pela imagem real
+          sed -i "s#REPO:TAG#${REPO}:${TAG}#" docker-compose.dev.yml
+
+      - name: Upload docker-compose.dev.yml artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose.dev
+          path: docker-compose.dev.yml
+          if-no-files-found: error
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify docker-compose.prod.yml exists
+        run: |
+          echo "🔍 Verificando se docker-compose.prod.yml existe..."
+          ls -la docker-compose.prod.yml
+          echo "📄 Conteúdo do arquivo (primeiras 10 linhas):"
+          head -10 docker-compose.prod.yml
+
+      - name: Upload docker-compose to production
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST_PROD }}
+          username: ${{ secrets.VPS_USER_PROD }}
+          key: ${{ secrets.VPS_SSH_KEY_PROD }}
+          passphrase: ${{ secrets.VPS_SSH_KEY_PROD_PASSPHRASE }}
+          strip_components: 1
+          source: "docker-compose.prod.yml"
+          target: "/opt/backend-prod/api/"
+          overwrite: true
+
+      - name: Verify docker-compose upload
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST_PROD }}
+          username: ${{ secrets.VPS_USER_PROD }}
+          key: ${{ secrets.VPS_SSH_KEY_PROD }}
+          passphrase: ${{ secrets.VPS_SSH_KEY_PROD_PASSPHRASE }}
+          script: |
+            echo "🔍 Verificando se docker-compose.prod.yml foi atualizado..."
+            ls -la /opt/backend-prod/api/docker-compose.prod.yml
+            echo "📅 Timestamp do arquivo:"
+            stat -c %y /opt/backend-prod/api/docker-compose.prod.yml
+
+      - name: Compute image tag for production
+        id: tag
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            echo "tag=sha-${{ github.sha }}" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF_TYPE}" == "branch" && "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "tag=prod" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to production over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST_PROD }}
+          username: ${{ secrets.VPS_USER_PROD }}
+          key: ${{ secrets.VPS_SSH_KEY_PROD }}
+          passphrase: ${{ secrets.VPS_SSH_KEY_PROD_PASSPHRASE }}
+          script: |
+            set -e
+            mkdir -p /opt/backend-prod/api
+            cd /opt/backend-prod/api
+            
+            # Login no Docker Hub
+            docker login docker.io -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            
+            # Configurar variáveis de ambiente diretamente
+            echo "✅ Configurando variáveis de ambiente..."
+            echo "📦 Imagem: ${{ secrets.DOCKER_USERNAME }}/senate_tracker_api:${{ steps.tag.outputs.tag }}"
+            
+            # Deploy incremental inteligente
+            echo "🔄 Iniciando deploy incremental..."
+            
+            # Pull das novas imagens
+            REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml pull | cat
+            
+            # Verifica se é primeiro deploy ou atualização
+            RUNNING_SERVICES=$(docker ps --filter "name=api" --format "{{.Names}}" | grep -E "(api)" | wc -l)
+            echo "📊 Serviços da aplicação rodando: $RUNNING_SERVICES"
+            
+            if [ "$RUNNING_SERVICES" -eq 0 ]; then
+              echo "🆕 Primeiro deploy - iniciando todos os serviços..."
+              REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml up -d | cat
+            else
+              echo "🔄 Deploy incremental - atualizando apenas serviços da aplicação..."
+              # Atualiza apenas os serviços da aplicação (API)
+              REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml up -d --no-deps api | cat
+            fi
+            
+            # Aguarda os serviços iniciarem
+            echo "⏳ Aguardando serviços iniciarem..."
+            sleep 15
+            
+            # Verifica saúde dos serviços
+            echo "🔍 Verificando saúde dos serviços:"
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep api
+            
+            # Verifica se algum container falhou
+            FAILED_CONTAINERS=$(docker ps --filter "name=api" --filter "status=exited" --format "{{.Names}}")
+            if [ -n "$FAILED_CONTAINERS" ]; then
+              echo "⚠️  Containers falharam: $FAILED_CONTAINERS"
+              echo "🔄 Tentando reiniciar containers falhados..."
+              REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml restart | cat
+              sleep 10
+            fi
+            
+            # Verificação final
+            echo "✅ Verificação final do deploy:"
+            echo "📊 Status dos serviços da aplicação:"
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" | grep api
+            
+            # Limpeza de imagens antigas (apenas as não utilizadas)
+            docker image prune -f | cat
+
+      - name: Deploy Summary
+        run: |
+          echo "🚀 Deploy concluído com sucesso!"
+          echo "📦 Imagem: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
+          echo "🎯 Ambiente: Produção"

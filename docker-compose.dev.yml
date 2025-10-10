@@ -1,11 +1,10 @@
 services:
   # Aplicação Spring Boot para desenvolvimento
-  app-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: app-dev
+  api:
+    image: docker.io/${DOCKER_USERNAME}/senate_tracker_api:dev
+    container_name: api-dev
     restart: unless-stopped
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=dev"]
     environment:
       # Configurações da aplicação
       SPRING_PROFILES_ACTIVE: dev
@@ -14,20 +13,18 @@ services:
       # Configurações de desenvolvimento
       SPRING_DEVTOOLS_RESTART_ENABLED: true
       SPRING_DEVTOOLS_LIVERELOAD_ENABLED: true
+      
+      # Timezone
+      TZ: America/Sao_Paulo
     ports:
-      - "8081:8080"
+      - "8080:8080"
     volumes:
       - ./src:/app/src:ro
       - ./target:/app/target
-    networks:
-      - demo-dev-network
+      - ./pom.xml:/app/pom.xml:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      test: ["CMD-SHELL", "curl --fail --silent --show-error http://localhost:8080/api/v1/health > /dev/null"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-networks:
-  demo-dev-network:
-    driver: bridge
