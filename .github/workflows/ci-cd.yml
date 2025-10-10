@@ -281,7 +281,6 @@ jobs:
           username: ${{ secrets.VPS_USER_PROD }}
           key: ${{ secrets.VPS_SSH_KEY_PROD }}
           passphrase: ${{ secrets.VPS_SSH_KEY_PROD_PASSPHRASE }}
-          strip_components: 1
           source: "docker-compose.prod.yml"
           target: "/opt/backend-prod/api/"
           overwrite: true
@@ -295,9 +294,16 @@ jobs:
           passphrase: ${{ secrets.VPS_SSH_KEY_PROD_PASSPHRASE }}
           script: |
             echo "🔍 Verificando se docker-compose.prod.yml foi atualizado..."
-            ls -la /opt/backend-prod/api/docker-compose.prod.yml
-            echo "📅 Timestamp do arquivo:"
-            stat -c %y /opt/backend-prod/api/docker-compose.prod.yml
+            echo "📁 Conteúdo da pasta /opt/backend-prod/api/:"
+            ls -la /opt/backend-prod/api/
+            echo "📄 Verificando arquivo específico:"
+            if [ -f /opt/backend-prod/api/docker-compose.prod.yml ]; then
+              ls -la /opt/backend-prod/api/docker-compose.prod.yml
+              echo "📅 Timestamp do arquivo:"
+              stat -c %y /opt/backend-prod/api/docker-compose.prod.yml
+            else
+              echo "❌ Arquivo docker-compose.prod.yml não encontrado!"
+            fi
 
       - name: Compute image tag for production
         id: tag
