@@ -274,6 +274,19 @@ jobs:
           echo "📄 Conteúdo do arquivo (primeiras 10 linhas):"
           head -10 docker-compose.prod.yml
 
+      - name: Update docker-compose.prod.yml with correct image tag
+        run: |
+          echo "🔄 Atualizando docker-compose.prod.yml com a tag correta..."
+          IMAGE_TAG="${{ steps.tag.outputs.tag }}"
+          FULL_IMAGE="${{ secrets.DOCKER_USERNAME }}/senate_tracker_api:${IMAGE_TAG}"
+          
+          # Substitui a tag da imagem no arquivo
+          sed -i "s|newmatheused/senate_tracker_api:latest|${FULL_IMAGE}|g" docker-compose.prod.yml
+          
+          echo "✅ Imagem atualizada para: ${FULL_IMAGE}"
+          echo "📄 Verificando mudanças:"
+          grep "image:" docker-compose.prod.yml
+
       - name: Upload docker-compose to production
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -338,8 +351,8 @@ jobs:
             # Deploy incremental inteligente
             echo "🔄 Iniciando deploy incremental..."
             
-            # Pull das novas imagens
-            REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml pull | cat
+            # Pull das novas imagens (sem variáveis de ambiente desnecessárias)
+            docker-compose -f docker-compose.prod.yml pull | cat
             
             # Verifica se é primeiro deploy ou atualização
             RUNNING_SERVICES=$(docker ps --filter "name=api" --format "{{.Names}}" | grep -E "(api)" | wc -l)
@@ -347,11 +360,11 @@ jobs:
             
             if [ "$RUNNING_SERVICES" -eq 0 ]; then
               echo "🆕 Primeiro deploy - iniciando todos os serviços..."
-              REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml up -d | cat
+              docker-compose -f docker-compose.prod.yml up -d | cat
             else
               echo "🔄 Deploy incremental - atualizando apenas serviços da aplicação..."
               # Atualiza apenas os serviços da aplicação (API)
-              REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml up -d --no-deps api | cat
+              docker-compose -f docker-compose.prod.yml up -d --no-deps api | cat
             fi
             
             # Aguarda os serviços iniciarem
@@ -367,7 +380,7 @@ jobs:
             if [ -n "$FAILED_CONTAINERS" ]; then
               echo "⚠️  Containers falharam: $FAILED_CONTAINERS"
               echo "🔄 Tentando reiniciar containers falhados..."
-              REGISTRY=docker.io IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/senate_tracker_api TAG=${{ steps.tag.outputs.tag }} API_PORT=8080 SPRING_PROFILES_ACTIVE=production SERVER_PORT=8080 JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC" docker-compose -f docker-compose.prod.yml restart | cat
+              docker-compose -f docker-compose.prod.yml restart | cat
               sleep 10
             fi
             
