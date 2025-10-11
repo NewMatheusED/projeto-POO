@@ -2,6 +2,7 @@ package com.poo.demo.application.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poo.demo.domain.dto.ProcessoDto;
+import com.poo.demo.domain.dto.ProcessoDtoDetail;
 import com.poo.demo.domain.entity.ApiResponse;
 import com.poo.demo.infrastructure.client.SmartHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +26,12 @@ public class ProcessoApiService extends AbstractApiService {
      * Busca as emendas de um processo específico.
      * Utiliza o método da classe abstrata para eliminar duplicação.
      * @param codigo Código do processo
-     * @return Array de ProcessoDto com as emendas do processo
+     * @return ProcessoDto com as emendas do processo
      */
-    public ApiResponse<ProcessoDto[]> buscarEmendasProcesso(String codigo) {
+    public ApiResponse<ProcessoDtoDetail> buscarEmendasProcesso(String codigo) {
         validateParameter(codigo, "código do processo");
-        String endpoint = "/processo/emenda?idProcesso=" + codigo;
-        return executeApiCall(endpoint, ProcessoDto[].class, null, "buscar emendas do processo");
-    }
-
-    /**
-     * Busca o JSON bruto de um processo específico.
-     * Utiliza o método da classe abstrata para eliminar duplicação.
-     * @param codigo Código do processo
-     * @return JSON válido da resposta (XML convertido para JSON)
-     */
-    public ApiResponse<Object> buscarProcessoBruto(String codigo) {
-        validateParameter(codigo, "código do processo");
-        String endpoint = "/processo/emenda?idProcesso=" + codigo;
-        return executeRawApiCall(endpoint, "buscar processo bruto");
+        String endpoint = "/processo/" + codigo;
+        return executeApiCall(endpoint, ProcessoDtoDetail.class, null, "buscar emendas do processo");
     }
 
     /**

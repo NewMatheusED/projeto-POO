@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/votacoes")
-@CrossOrigin(origins = "*")
 @Tag(name = "Votações", description = "Endpoints para consulta de votações")
-public class VotacoesController {
+public class VotacoesController extends BaseApiController {
 
     private final VotacoesApiService votacoesApiService;
 
@@ -27,16 +26,33 @@ public class VotacoesController {
 
     /**
      * Busca todos os votos de um processo específico
-     * @param codigo Código do processo
+     * @param sigla Sigla do processo
+     * @param numero Número do processo
+     * @param ano Ano do processo
      * @return Array de ProcessoDto com os votos do processo
      */
     @Operation(summary = "Buscar Votos do Processo", description = "Retorna todos os votos de um processo legislativo específico")
     @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Votos do processo retornados com sucesso")
     })
-    @GetMapping("/{codigo}")
-    public ResponseEntity<ApiResponse<VotacoesProjetoDto.VotacoesProjeto[]>> buscarVotosProcesso(
-            @Parameter(description = "Código do processo", required = true) @PathVariable String codigo) {
-        return ResponseEntity.ok(votacoesApiService.buscarVotosProcesso(codigo));
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<VotacoesProjetoDto>> buscarVotosProcesso(
+            @Parameter(description = "Sigla do processo", required = true) @RequestParam String sigla,
+            @Parameter(description = "Número do processo", required = true) @RequestParam String numero,
+            @Parameter(description = "Ano do processo", required = true) @RequestParam String ano) {
+        ApiResponse<VotacoesProjetoDto> response = votacoesApiService.buscarVotosProcesso(sigla, numero, ano);
+        return response.isSuccess() ? 
+            createSuccessResponse(response.getData()) : 
+            createNotFoundResponse(response.getMessage());
+    }
+
+    @Override
+    public String getControllerName() {
+        return "Votacoes";
+    }
+
+    @Override
+    public String getApiVersion() {
+        return "v1.0";
     }
 }

@@ -27,29 +27,19 @@ public class VotacoesApiService {
 
     /**
      * Busca todos os votos de um processo específico
-     * @param codigo Código do processo
+     * @param sigla Sigla do processo
+     * @param numero Número do processo
+     * @param ano Ano do processo
      * @return Array de VotacoesProjeto com os votos do processo
      */
-    public ApiResponse<VotacoesProjetoDto.VotacoesProjeto[]> buscarVotosProcesso(String codigo) {
+    public ApiResponse<VotacoesProjetoDto> buscarVotosProcesso(String sigla, String numero, String ano) {
         try {
-            String url = SENADO_API_BASE + "/votacao?idProcesso=" + codigo;
+            String url = SENADO_API_BASE + "/votacaoComissao/materia/" + sigla + "/" + numero + "/" + ano;
             
             // Obtém a resposta como objeto JSON primeiro
-            Object jsonObject = httpClient.getAsJsonObject(url);
-            
-            // Converte o array para VotacoesProjeto[]
-            if (jsonObject instanceof List) {
-                List<?> jsonList = (List<?>) jsonObject;
-                VotacoesProjetoDto.VotacoesProjeto[] votacoes = new VotacoesProjetoDto.VotacoesProjeto[jsonList.size()];
-                
-                for (int i = 0; i < jsonList.size(); i++) {
-                    votacoes[i] = jsonMapper.convertValue(jsonList.get(i), VotacoesProjetoDto.VotacoesProjeto.class);
-                }
-                
-                return ApiResponse.success(votacoes);
-            } else {
-                return ApiResponse.error("Formato de resposta inesperado", 500);
-            }
+            VotacoesProjetoDto jsonObject = httpClient.get(url, VotacoesProjetoDto.class, "VotacoesComissao.Votacoes.Votacao");
+
+            return ApiResponse.success(jsonObject);
         } catch (Exception e) {
             return ApiResponse.error("Erro ao buscar votos do processo: " + e.getMessage(), 500);
         }
