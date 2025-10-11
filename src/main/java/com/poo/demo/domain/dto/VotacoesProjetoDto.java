@@ -4,16 +4,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VotacoesProjetoDto {
     
     public static class VotacoesProjeto {
         private String codigoSessao;
+        private String identificacao;
         private List<VotacaoProjeto> votos;
         
         @JsonProperty("codigoSessao")
         public String getCodigoSessao() { return codigoSessao; }
         public void setCodigoSessao(String codigoSessao) { this.codigoSessao = codigoSessao; }
+
+        @JsonProperty("identificacao")
+        public String getIdentificacao() { return identificacao; }
+        public void setIdentificacao(String identificacao) { this.identificacao = identificacao; }
         
         @JsonProperty("votos")
         public List<VotacaoProjeto> getVotos() { return votos; }
