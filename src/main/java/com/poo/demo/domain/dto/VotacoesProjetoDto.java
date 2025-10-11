@@ -4,63 +4,122 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VotacoesProjetoDto {
-    
-    public static class VotacoesProjeto {
-        private String codigoSessao;
-        private String identificacao;
-        private List<VotacaoProjeto> votos;
-        
-        @JsonProperty("codigoSessao")
-        public String getCodigoSessao() { return codigoSessao; }
-        public void setCodigoSessao(String codigoSessao) { this.codigoSessao = codigoSessao; }
+    @JsonProperty("DataHoraInicioReuniao")
+    private String dataInicio;
 
-        @JsonProperty("identificacao")
-        public String getIdentificacao() { return identificacao; }
-        public void setIdentificacao(String identificacao) { this.identificacao = identificacao; }
-        
-        @JsonProperty("votos")
-        public List<VotacaoProjeto> getVotos() { return votos; }
-        public void setVotos(List<VotacaoProjeto> votos) { this.votos = votos; }
+    @JsonProperty("NomeColegiado")
+    private String colegiado;
+
+    @JsonProperty("Votos")
+    private Votos votos;
+
+    // Getters e Setters
+    public String getDataInicio() {
+        return dataInicio;
     }
 
-    public static class VotacaoProjeto {
-        private String codigoParlamentar;
-        private String nomeParlamentar;
-        private String sexoParlamentar;
-        private String siglaPartidoParlamentar;
-        private String siglaUFParlamentar;
-        private String siglaVotoParlamentar;
-        private String descricaoVotoParlamentar;
+    public void setDataInicio(String dataInicio) {
+        this.dataInicio = dataInicio;
+    }
 
-        @JsonProperty("codigoParlamentar")
-        public String getCodigoParlamentar() { return codigoParlamentar; }
-        public void setCodigoParlamentar(String codigoParlamentar) { this.codigoParlamentar = codigoParlamentar; }
+    public String getColegiado() {
+        return colegiado;
+    }
 
-        @JsonProperty("nomeParlamentar")
-        public String getNomeParlamentar() { return nomeParlamentar; }
-        public void setNomeParlamentar(String nomeParlamentar) { this.nomeParlamentar = nomeParlamentar; }
+    public void setColegiado(String colegiado) {
+        this.colegiado = colegiado;
+    }
 
-        @JsonProperty("sexoParlamentar")
-        public String getSexoParlamentar() { return sexoParlamentar; }
-        public void setSexoParlamentar(String sexoParlamentar) { this.sexoParlamentar = sexoParlamentar; }
+    public Votos getVotos() {
+        return votos;
+    }
 
-        @JsonProperty("siglaPartidoParlamentar")
-        public String getSiglaPartidoParlamentar() { return siglaPartidoParlamentar; }
-        public void setSiglaPartidoParlamentar(String siglaPartidoParlamentar) { this.siglaPartidoParlamentar = siglaPartidoParlamentar; }
+    public void setVotos(Votos votos) {
+        this.votos = votos;
+    }
 
-        @JsonProperty("siglaUFParlamentar")
-        public String getSiglaUFParlamentar() { return siglaUFParlamentar; }
-        public void setSiglaUFParlamentar(String siglaUFParlamentar) { this.siglaUFParlamentar = siglaUFParlamentar; }
+    public static class Votos {
+        @JsonProperty("Voto")
+        private List<Voto> voto;
 
-        @JsonProperty("siglaVotoParlamentar")
-        public String getSiglaVotoParlamentar() { return siglaVotoParlamentar; }
-        public void setSiglaVotoParlamentar(String siglaVotoParlamentar) { this.siglaVotoParlamentar = siglaVotoParlamentar; }
+        // Getters e Setters
+        public List<Voto> getVoto() {
+            return voto;
+        }
 
-        @JsonProperty("descricaoVotoParlamentar")
-        public String getDescricaoVotoParlamentar() { return descricaoVotoParlamentar; }
-        public void setDescricaoVotoParlamentar(String descricaoVotoParlamentar) { this.descricaoVotoParlamentar = descricaoVotoParlamentar; }
+        public void setVoto(List<Voto> voto) {
+            this.voto = voto;
+        }
+
+        public static class Voto {
+            @JsonProperty("CodigoParlamentar")
+            private String codigoParlamentar;
+
+            @JsonProperty("NomeParlamentar")
+            private String nomeParlamentar;
+
+            @JsonProperty("SiglaPartidoParlamentar")
+            private String siglaPartidoParlamentar;
+
+            @JsonProperty("SiglaCasaParlamentar")
+            private String siglaCasaParlamentar;
+
+            @JsonProperty("QualidadeVoto")
+            private String qualidadeVoto;
+
+            @JsonProperty("VotoPresidente")
+            private String votoPresidente;
+
+            // Getters e Setters
+            public String getCodigoParlamentar() {
+                return codigoParlamentar;
+            }
+
+            public void setCodigoParlamentar(String codigoParlamentar) {
+                this.codigoParlamentar = codigoParlamentar;
+            }
+
+            public String getNomeParlamentar() {
+                return nomeParlamentar;
+            }
+
+            public void setNomeParlamentar(String nomeParlamentar) {
+                this.nomeParlamentar = nomeParlamentar;
+            }
+
+            public String getSiglaPartidoParlamentar() {
+                return siglaPartidoParlamentar;
+            }
+
+            public void setSiglaPartidoParlamentar(String siglaPartidoParlamentar) {
+                this.siglaPartidoParlamentar = siglaPartidoParlamentar;
+            }
+
+            public String getSiglaCasaParlamentar() {
+                return siglaCasaParlamentar;
+            }
+
+            public void setSiglaCasaParlamentar(String siglaCasaParlamentar) {
+                this.siglaCasaParlamentar = siglaCasaParlamentar;
+            }
+
+            public String getQualidadeVoto() {
+                return qualidadeVoto;
+            }
+
+            public void setQualidadeVoto(String qualidadeVoto) {
+                this.qualidadeVoto = qualidadeVoto;
+            }
+
+            public String getVotoPresidente() {
+                return votoPresidente;
+            }
+
+            public void setVotoPresidente(String votoPresidente) {
+                this.votoPresidente = votoPresidente;
+            }
+        }
     }
 }
