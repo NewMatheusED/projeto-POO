@@ -47,12 +47,12 @@ RUN chown -R appuser:appgroup /app
 # Mudar para usuário não-root
 USER appuser
 
-# Expor porta da aplicação (Render usa PORT env var)
-EXPOSE 10000
+# Expor porta da aplicação (Render usa PORT env var, local usa 8080)
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-10000}/actuator/health || exit 1
+    CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
 
 # Configurar JVM para containers
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
