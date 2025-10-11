@@ -54,6 +54,11 @@ public class SmartHttpClient {
             
             String responseBody = response.getBody();
             
+            // Verifica se o responseBody não é null
+            if (responseBody == null) {
+                throw new RuntimeException("Resposta da API está vazia");
+            }
+            
             // Se a resposta for XML, converte para JSON
             if (formatConverter.isXmlResponse(responseBody)) {
                 return handleXmlResponse(responseBody, responseType);
@@ -261,8 +266,15 @@ public class SmartHttpClient {
             // Converte JSON para Map
             Map<String, Object> jsonMap = jsonMapper.readValue(jsonResponse, Map.class);
 
-            // Extrai o objeto usando o caminho fornecido
-            Object result = extractObjectFromJsonMap(jsonMap, arrayPath);
+            Object result;
+            
+            if (arrayPath == null || arrayPath.trim().isEmpty()) {
+                result = jsonMap;
+            } else {
+                // Extrai o objeto usando o caminho fornecido
+                result = extractObjectFromJsonMap(jsonMap, arrayPath);
+            }
+            
 
             // Converte para o DTO usando Jackson
             T converted = jsonMapper.convertValue(result, responseType);
@@ -270,6 +282,8 @@ public class SmartHttpClient {
             return converted;
 
         } catch (Exception e) {
+            System.out.println("handleJsonObjectResponse - erro: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Erro ao converter JSON para objeto: " + e.getMessage(), e);
         }
     }
@@ -452,6 +466,11 @@ public class SmartHttpClient {
             );
             
             String responseBody = response.getBody();
+            
+            // Verifica se o responseBody não é null
+            if (responseBody == null) {
+                throw new RuntimeException("Resposta da API está vazia");
+            }
             
             // Se a resposta for XML, converte para JSON válido
             if (formatConverter.isXmlResponse(responseBody)) {
