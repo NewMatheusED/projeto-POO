@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * DTO para representar um processo legislativo com emendas e subemendas.
- * Contém todos os campos da nova estrutura da API do Senado.
+ * Contém os principais campos da nova estrutura da API do Senado utilizados pela aplicação.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProcessoDtoDetail {
