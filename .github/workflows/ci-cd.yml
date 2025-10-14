@@ -267,6 +267,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Compute image tag for production
+        id: tag
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            echo "tag=sha-${{ github.sha }}" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF_TYPE}" == "branch" && "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "tag=prod" >> $GITHUB_OUTPUT
+          fi
+
       - name: Verify docker-compose.prod.yml exists
         run: |
           echo "🔍 Verificando se docker-compose.prod.yml existe..."
@@ -279,6 +290,9 @@ jobs:
           echo "🔄 Atualizando docker-compose.prod.yml com a tag correta..."
           IMAGE_TAG="${{ steps.tag.outputs.tag }}"
           FULL_IMAGE="${{ secrets.DOCKER_USERNAME }}/senate_tracker_api:${IMAGE_TAG}"
+          
+          echo "📦 Tag da imagem: ${IMAGE_TAG}"
+          echo "📦 Imagem completa: ${FULL_IMAGE}"
           
           # Substitui a tag da imagem no arquivo
           sed -i "s|newmatheused/senate_tracker_api:latest|${FULL_IMAGE}|g" docker-compose.prod.yml
@@ -314,20 +328,11 @@ jobs:
               ls -la /opt/backend-prod/api/docker-compose.prod.yml
               echo "📅 Timestamp do arquivo:"
               stat -c %y /opt/backend-prod/api/docker-compose.prod.yml
+              echo "📄 Primeiras linhas do arquivo:"
+              head -10 /opt/backend-prod/api/docker-compose.prod.yml
             else
               echo "❌ Arquivo docker-compose.prod.yml não encontrado!"
             fi
-
-      - name: Compute image tag for production
-        id: tag
-        run: |
-          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            echo "tag=sha-${{ github.sha }}" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF_TYPE}" == "branch" && "${GITHUB_REF_NAME}" == "main" ]]; then
-            echo "tag=latest" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            echo "tag=prod" >> $GITHUB_OUTPUT
-          fi
 
       - name: Deploy to production over SSH
         uses: appleboy/ssh-action@v1.0.3
