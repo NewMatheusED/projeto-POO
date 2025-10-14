@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
  * Segue o princípio de responsabilidade única (SRP)
  */
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*")
 @Tag(name = "API Geral", description = "Endpoints gerais da aplicação")
 public class ApiController {

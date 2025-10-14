@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  * Controller específico para expor endpoints da API de Votações
  */
 @RestController
-@RequestMapping("/api/v1/votacoes")
+@RequestMapping("/v1/votacoes")
 @Tag(name = "Votações", description = "Endpoints para consulta de votações")
 public class VotacoesController extends BaseApiController {
 

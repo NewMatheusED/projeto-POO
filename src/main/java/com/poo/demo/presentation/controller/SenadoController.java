@@ -17,7 +17,7 @@ import com.poo.demo.domain.dto.VotacaoParlamentarDto;
  * Estende BaseApiController para eliminar duplicação de código.
  */
 @RestController
-@RequestMapping("/api/v1/senado")
+@RequestMapping("/v1/senado")
 @Tag(name = "Senado Federal", description = "Endpoints para integração com a API do Senado Federal")
 public class SenadoController extends BaseApiController {
 
