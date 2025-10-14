@@ -347,54 +347,59 @@ jobs:
             cd /opt/backend-prod/api
             
             # Login no Docker Hub
+            echo "🔐 Fazendo login no Docker Hub..."
             docker login docker.io -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             
-            # Configurar variáveis de ambiente diretamente
             echo "✅ Configurando variáveis de ambiente..."
             echo "📦 Imagem: ${{ secrets.DOCKER_USERNAME }}/senate_tracker_api:${{ steps.tag.outputs.tag }}"
             
-            # Deploy incremental inteligente
-            echo "🔄 Iniciando deploy incremental..."
-            
-            # Pull das novas imagens (sem variáveis de ambiente desnecessárias)
+            # Pull das novas imagens
+            echo "🔄 Baixando nova imagem..."
             docker-compose -f docker-compose.prod.yml pull | cat
             
-            # Verifica se é primeiro deploy ou atualização
-            RUNNING_SERVICES=$(docker ps --filter "name=api" --format "{{.Names}}" | grep -E "(api)" | wc -l)
+            # Verifica se há containers rodando
+            RUNNING_SERVICES=$(docker ps --filter "name=api" --format "{{.Names}}" | grep -E "^(api|.*_api)$" | wc -l)
             echo "📊 Serviços da aplicação rodando: $RUNNING_SERVICES"
             
             if [ "$RUNNING_SERVICES" -eq 0 ]; then
-              echo "🆕 Primeiro deploy - iniciando todos os serviços..."
+              echo "🆕 Primeiro deploy - iniciando serviços..."
               docker-compose -f docker-compose.prod.yml up -d | cat
             else
-              echo "🔄 Deploy incremental - atualizando apenas serviços da aplicação..."
-              # Atualiza apenas os serviços da aplicação (API)
-              docker-compose -f docker-compose.prod.yml up -d --no-deps api | cat
+              echo "🔄 Atualização - parando container antigo..."
+              # Para e remove o container antigo para evitar conflitos
+              docker-compose -f docker-compose.prod.yml stop api | cat || true
+              docker-compose -f docker-compose.prod.yml rm -f api | cat || true
+              
+              echo "🚀 Iniciando novo container..."
+              docker-compose -f docker-compose.prod.yml up -d api | cat
             fi
             
             # Aguarda os serviços iniciarem
             echo "⏳ Aguardando serviços iniciarem..."
-            sleep 15
+            sleep 20
             
             # Verifica saúde dos serviços
             echo "🔍 Verificando saúde dos serviços:"
-            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep api
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(api|NAME)"
             
             # Verifica se algum container falhou
-            FAILED_CONTAINERS=$(docker ps --filter "name=api" --filter "status=exited" --format "{{.Names}}")
+            FAILED_CONTAINERS=$(docker ps -a --filter "name=api" --filter "status=exited" --format "{{.Names}}")
             if [ -n "$FAILED_CONTAINERS" ]; then
               echo "⚠️  Containers falharam: $FAILED_CONTAINERS"
-              echo "🔄 Tentando reiniciar containers falhados..."
-              docker-compose -f docker-compose.prod.yml restart | cat
-              sleep 10
+              echo "📋 Logs do container falhado:"
+              docker logs $(echo $FAILED_CONTAINERS | head -1) --tail 50
+              echo "🔄 Tentando reiniciar..."
+              docker-compose -f docker-compose.prod.yml restart api | cat
+              sleep 15
             fi
             
             # Verificação final
             echo "✅ Verificação final do deploy:"
             echo "📊 Status dos serviços da aplicação:"
-            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" | grep api
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" | grep -E "(api|NAME)"
             
             # Limpeza de imagens antigas (apenas as não utilizadas)
+            echo "🧹 Limpando imagens antigas..."
             docker image prune -f | cat
 
       - name: Deploy Summary
