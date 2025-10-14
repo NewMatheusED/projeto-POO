@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * Estende BaseApiController para eliminar duplicação de código.
  */
 @RestController
-@RequestMapping("/api/v1/processo")
+@RequestMapping("/v1/processo")
 @Tag(name = "Processos", description = "Endpoints para consulta de processos legislativos")
 public class ProcessoController extends BaseApiController {
 

@@ -79,7 +79,7 @@ Sistema robusto de análise de dados parlamentares que converte automaticamente 
 
 ## 📋 **Endpoints da API**
 
-### **Base URL**: `http://localhost:8080/api/v1`
+### **Base URL**: `http://localhost:8080/v1`
 
 #### **🏛️ Senado** (`/senado`)
 - `GET /senadores` - Lista todos os senadores
@@ -199,13 +199,13 @@ Para instruções detalhadas passo a passo, consulte o arquivo **[RENDER_SETUP.m
 curl http://localhost:8080/actuator/health
 
 # Lista de senadores
-curl http://localhost:8080/api/v1/senado/senadores
+curl http://localhost:8080/v1/senado/senadores
 
 # Buscar detalhes de um senador
-curl http://localhost:8080/api/v1/senado/senadores/1234/detalhe
+curl http://localhost:8080/v1/senado/senadores/1234/detalhe
 
 # Buscar emendas de um processo
-curl http://localhost:8080/api/v1/processo/123456
+curl http://localhost:8080/v1/processo/123456
 ```
 
 ## 🏗️ **Estrutura do Projeto**
